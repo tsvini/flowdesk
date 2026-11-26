@@ -1650,8 +1650,14 @@ const PERGUNTAS = {
 PAGINAS.chat = () => {
   const d = dados();
   if (!chatLiberado(d)) {
-    return casca('chat', topo('FlowChat') + `<div class="trancado" data-test="chat-bloqueado"><div class="tr-ic">${ico('cadeado')}</div><h3>O FlowChat libera depois da missão do EP04</h3><p>Primeiro você monta o plano de testes do FD-101. Quando terminar, o time te chama aqui pra tirar as dúvidas que o card não responde.</p><a class="btn" href="card.html?id=FD-101&aba=plano">Ir pro plano de testes</a>${fala('vinicius', 'VINÍCIUS', 'No trabalho é igual: antes de perguntar, lê o card. Aí sua pergunta fica muito melhor.')}</div>`);
+    // antes do EP04: só dá pra ler as boas-vindas do time em #time-produto; perguntar libera depois da missão do EP04
+    const msgV = (m) => `<div class="msg" data-test="mensagem"><img src="img/av_${m.de}.png" alt=""><div><div class="who">${PESSOAS[m.de].nome}<i>${PESSOAS[m.de].papel}</i><small>${hora(m.quando)}</small></div><div class="tx">${esc(m.tx)}</div></div></div>`;
+    return casca('chat', `<div class="chatv"><div class="chan"><div class="t">Canais</div>${Object.keys(d.chat).map((k) => k === 'time-produto' ? `<a href="chat.html" class="on" data-test="canal-${k}"><span>#</span> ${k}</a>` : `<a class="chan-tranc" data-test="canal-${k}" title="Libera depois da missão do EP04"><span>#</span> ${k} ${ico('cadeado')}</a>`).join('')}</div>
+      <div class="msgs"><div class="chead"><b># time-produto</b><span class="avs">${TIME.map(([p]) => `<img src="img/av_${p}.png" alt="${PESSOAS[p].nome}" title="${PESSOAS[p].nome}">`).join('')}</span><span class="mem">6 membros</span></div><div class="lista" id="lista">${(d.chat['time-produto'] || []).map(msgV).join('')}</div>
+      <div class="chat-tranc" data-test="chat-bloqueado">${ico('cadeado')}<div><b>Perguntar pro time libera depois da missão do EP04</b><span>Primeiro você monta o plano de testes do FD-101. Antes de perguntar, lê o card: a pergunta fica muito melhor.</span></div><a class="btn sec" href="card.html?id=FD-101&aba=plano">Ir pro plano de testes</a></div></div>
+      <aside class="quem"><div class="t">Quem é quem</div>${TIME.map(([p, tx]) => `<div class="pes"><img src="img/av_${p}.png" alt=""><div><b>${PESSOAS[p].nome} <i>${PESSOAS[p].papel}</i></b><span>${tx}</span></div></div>`).join('')}</aside></div>`);
   }
+
   const canal = d.chat[qs.get('canal')] ? qs.get('canal') : 'time-produto', l = d.chat[canal];
   d.perguntadas = d.perguntadas || [];
   const msgHtml = (m) => `<div class="msg ${m.de === 'voce' ? 'eu' : ''}" data-test="mensagem">${m.de === 'voce' ? '<span class="vc">VC</span>' : `<img src="img/av_${m.de}.png" alt="">`}<div><div class="who">${PESSOAS[m.de].nome}<i>${PESSOAS[m.de].papel}</i><small>${hora(m.quando)}</small></div><div class="tx">${esc(m.tx)}</div></div></div>`;
