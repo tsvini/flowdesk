@@ -1619,6 +1619,8 @@ function respostaDoTime(tx, canal) {
   const t = tx.toLowerCase(), d = dados(), bug = d.cards.filter((c) => c.tipo === 'bug').pop();
   const R = (de, ...op) => ({ de, tx: op[Math.floor(Math.random() * op.length)] });
   const reg = d.cards.find((c) => c.tipo === 'bug' && c.regressao && c.coluna !== 'concluido');
+  // EP10: perdeu a daily (o sinal caiu) e pergunta o que foi combinado
+  if (VERSAO === 15 && d.cards.some((c) => c.tipo === 'bug' && c.coluna === 'qa') && /daily|combinad|perdi|caiu|sinal/.test(t)) return { de: 'gabriela', tx: 'Corrigi os dois bugs na Sprint 15. Preciso do seu reteste pra liberar a versão 🙏' };
   if (VERSAO === 15 && reg && /regress|release|segur|recomend|subir|quebr/.test(t)) return R('beatriz', `Segura a release então. Gabi, prioridade no ${reg.id}.`, `Obrigada por avisar antes. Release segurada até o ${reg.id} sair.`);
   if (/bug|erro|falh|quebr/.test(t)) return bug ? R('gabriela', `Vi o ${bug.id}. Vou olhar ainda hoje e te aviso 👀`, `Já tô olhando o ${bug.id}. Se tiver print, joga no card!`) : R('gabriela', 'Opa! Abre o card em "Reportar bug" com o passo a passo que eu olho 👀', 'Me manda os passos pra reproduzir? Aí eu consigo ver aqui.');
   if (/regra|crit[eé]rio|card|fd-?10\d|limite|anexo|t[ií]tulo/.test(t)) return R('rafael', 'Tá tudo nos critérios do FD-101. Se faltar alguma regra, me chama que a gente conversa 👍', 'Boa! Se tiver dúvida de regra, pode perguntar. Eu prefiro responder agora do que descobrir depois.');
