@@ -1865,6 +1865,7 @@ PAGINAS.caca = () => {
     <div class="caca-grade"><section class="painel caca-form"><h2>Reportar um bug da caça</h2><p class="dica">A confirmação é automática. Vale o primeiro report confirmado de cada bug.</p>
       <form id="fc" novalidate>${aberta ? '<div class="aviso-caca ouro" data-test="caca-liberada"><b>Bugs liberados.</b> São 3 espalhados pelo FlowDesk. As pistas estão nas aulas, pra quem presta atenção.</div>' : '<div class="aviso-caca" data-test="caca-fechada">A primeira temporada ainda não abriu. Quando abrir, este formulário passa a funcionar e o aviso sai daqui.</div>'}
         <div class="campo"><label for="cNomeU">Seu nome na Udemy <i>*</i></label><input class="in" id="cNomeU" data-test="caca-nome" value="${esc(c.nome)}"></div>
+        <div class="campo"><label for="cTurma">Código da turma <i>*</i></label><input class="in" id="cTurma" data-test="caca-turma" autocomplete="off" placeholder="aparece dentro do curso"></div>
         <div class="campo"><label>Bug que você reproduziu <i>*</i></label><div id="qual" data-test="caca-qual"></div></div>
         <div class="campo"><label for="cPas">Passos para reproduzir <i>*</i></label><textarea class="in" id="cPas" data-test="caca-passos" placeholder="1. Abrir…&#10;2. …"></textarea></div>
         <div class="linha2"><div class="campo"><label for="cEspC">Resultado esperado <i>*</i></label><textarea class="in curto" id="cEspC" data-test="caca-esperado" rows="3" placeholder="O que deveria acontecer"></textarea></div><div class="campo"><label for="cObtC">Resultado obtido <i>*</i></label><textarea class="in curto" id="cObtC" data-test="caca-obtido" rows="3" placeholder="O que aconteceu de verdade"></textarea></div></div>
@@ -1928,13 +1929,14 @@ PAGINAS.caca = () => {
     ev.preventDefault(); limpaErros(); if (!aberta) return;
     const v = (i) => $('#' + i).value.trim(); let ok = true;
     if (!v('cNomeU')) { erroCampo('cNomeU', 'Escreva seu nome na Udemy'); ok = false; }
+    if (!v('cTurma')) { erroCampo('cTurma', 'Escreva o código da turma. Ele aparece dentro do curso.'); ok = false; }
     if (!qual) { toast('Primeiro reproduza um bug da caça aqui no FlowDesk', true); ok = false; }
     if (v('cPas').length < 15) { erroCampo('cPas', 'Escreva os passos pra reproduzir'); ok = false; }
     if (!v('cEspC')) { erroCampo('cEspC', 'Escreva o resultado esperado'); ok = false; }
     if (!v('cObtC')) { erroCampo('cObtC', 'Escreva o resultado obtido'); ok = false; }
     if (!ok) return;
     try {
-      const r = await (await fetch(`${CACA_API}/envio`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ nome: v('cNomeU'), bug: qual, passos: v('cPas'), esperado: v('cEspC'), obtido: v('cObtC'), evidencia: v('cEvi'), ambiente: v('cAmb'), prova: LS.get('fd:caca-prova', {})[`${(LS.get('fd:placar', {}) || {}).temporada || 1}-${qual}`] || null }) })).json();
+      const r = await (await fetch(`${CACA_API}/envio`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ nome: v('cNomeU'), turma: v('cTurma'), bug: qual, passos: v('cPas'), esperado: v('cEspC'), obtido: v('cObtC'), evidencia: v('cEvi'), ambiente: v('cAmb'), prova: LS.get('fd:caca-prova', {})[`${(LS.get('fd:placar', {}) || {}).temporada || 1}-${qual}`] || null }) })).json();
       if (!r.ok) return toast(r.erro || 'Não deu pra enviar', true);  // inclui recusado sem prova
       meus.push({ id: r.id, bug: qual, quando: r.quando }); LS.set('fd:caca-envios', meus);
       recado(r.ganhou ? `Confirmado! Você achou o bug #${qual}. Seu código: ${r.codigo}` : `Report enviado. Recibo ${r.recibo}`); location.reload();
