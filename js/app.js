@@ -248,6 +248,12 @@ const CENARIOS_EP03 = [
 // EP07: o Rafael respondeu que título só com espaços é o mesmo que vazio → a partir do EP08 o esperado do cenário 9 já vem preenchido
 const ESPERADO_CEN9 = 'Aparece "Título é obrigatório" e o chamado não é criado';
 const evNome = (i) => `cenario-${String(i + 1).padStart(2, '0')}.png`;
+// o bug do título só com espaços que o aluno abre no EP07 (já existe a partir do save do EP08)
+function bugDoEp07(d) {
+  d.planos['FD-101'][8].bug = 'BUG-01';
+  d.cards.push({ id: 'BUG-01', titulo: 'Criar chamado aceita título só com espaços', coluna: 'afazer', resp: 'gabriela', tipo: 'bug', prioridade: 'Normal', relacionado: 'FD-101', cenario: 'Título só com espaços em branco', passos: '1. Abrir Novo chamado\n2. Digitar só espaços no título\n3. Preencher a descrição\n4. Clicar em Criar chamado', esperado: ESPERADO_CEN9, obtido: 'O chamado é criado sem título', evidencia: evNome(8), criterios: [], ok: [], comentarios: [], criadoEm: agora() });
+  d.proximoBug = 2; return d;
+}
 function depoisDoEp08() {
   const d = semente();
   d.planos['FD-101'] = CENARIOS_EP03.map((c, i) => ({ ...c, exec: i === 5 || i === 8 ? 'falhou' : 'passou', evid: evNome(i), ...(i === 5 || i === 8 ? { jaFalhou: true } : {}) }));
@@ -319,7 +325,7 @@ SAVES.forEach((sv) => { if (sv.id === 'inicio') return; const m = sv.monta; sv.m
   { id: 'ep04', nome: 'Início do EP05', quando: 'Cenários em Gherkin', monta: () => { const d = semente(); d.planos['FD-101'] = CENARIOS_EP03.map((c) => ({ ...c })); d.conquistas = ['ep03']; return d; } },
   { id: 'ep06', nome: 'Início do EP06', quando: 'Prática do Gherkin', monta: () => { const d = semente(); d.planos['FD-101'] = CENARIOS_EP03.map((c) => ({ ...c })); d.conquistas = ['ep03']; return d; } },
   { id: 'ep07', nome: 'Início do EP07', quando: 'Primeiro bug', monta: () => { const d = semente(); d.planos['FD-101'] = CENARIOS_EP03.map((c) => ({ ...c })); d.gherkin = { 'FD-101': GK_EP06 }; d.conquistas = ['ep03', 'ep06']; return d; } },
-  { id: 'ep08', nome: 'Início do EP08', quando: 'Executar o plano', monta: () => { const d = semente(); d.planos['FD-101'] = CENARIOS_EP03.map((c) => ({ ...c })); d.planos['FD-101'][8].esperado = ESPERADO_CEN9; d.gherkin = { 'FD-101': GK_EP06 }; d.conquistas = ['ep03', 'ep06']; return d; } },
+  { id: 'ep08', nome: 'Início do EP08', quando: 'Executar o plano', monta: () => { const d = semente(); d.planos['FD-101'] = CENARIOS_EP03.map((c) => ({ ...c })); d.planos['FD-101'][8].esperado = ESPERADO_CEN9; bugDoEp07(d); d.gherkin = { 'FD-101': GK_EP06 }; d.conquistas = ['ep03', 'ep06']; return d; } },
   { id: 'ep10', nome: 'Início do EP10', quando: 'Retestar os bugs', monta: depoisDoEp08 },
   { id: 'ep12', nome: 'Início do EP12', quando: 'Rodada de regressão', monta: depoisDoEp10 },
   { id: 'ep14', nome: 'Início do EP14', quando: 'Sprint 16', monta: depoisDoEp12 },
