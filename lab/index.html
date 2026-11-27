@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Filiais · FlowDesk Lab</title>
+<link rel="icon" href="../img/icon.png">
+
+<style>
+  @font-face{font-family:Inter;font-weight:400;src:url(../fontes/inter-regular.woff2) format('woff2')}
+  @font-face{font-family:Inter;font-weight:500;src:url(../fontes/inter-medium.woff2) format('woff2')}
+  @font-face{font-family:Inter;font-weight:600;src:url(../fontes/inter-semibold.woff2) format('woff2')}
+  @font-face{font-family:Inter;font-weight:700;src:url(../fontes/inter-bold.woff2) format('woff2')}
+  @font-face{font-family:'Space Grotesk';font-weight:600;src:url(../fontes/sg-600.woff2) format('woff2')}
+  @font-face{font-family:'Space Grotesk';font-weight:700;src:url(../fontes/sg-700.woff2) format('woff2')}
+  :root{--bg:#0A0A14;--card:#11111D;--card2:#161626;--line:#23233A;--txt:#ECEBFF;--mut:#9A98B8;--roxo:#8B5CF6;--roxo2:#A78BFA;--ouro:#E3B341;--ok:#34D399;--erro:#F87171}
+  *{box-sizing:border-box;min-width:0}
+  body{margin:0;background:var(--bg);color:var(--txt);font-family:Inter,system-ui,sans-serif;overflow-x:clip}
+  .app{display:flex;flex-wrap:wrap;min-height:100vh}
+  .side{flex:0 0 222px;background:#0C0C17;border-right:1px solid var(--line);padding:18px 12px;display:flex;flex-direction:column;gap:4px}
+  .logo{display:flex;align-items:center;gap:10px;font-family:'Space Grotesk',Inter,sans-serif;font-weight:800;font-size:20px;padding:4px 10px 18px}
+  .logo svg{width:30px;height:30px}
+  .nav{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:10px;color:var(--mut);font-size:15px;font-weight:500;text-decoration:none}
+  .nav svg{width:18px;height:18px;flex:none}
+  .nav.on{background:var(--roxo);color:#fff;box-shadow:0 6px 20px rgba(139,92,246,.35)}
+  .nav .badge{margin-left:auto;font-size:11px;background:#1E1E33;border:1px solid var(--line);border-radius:999px;padding:2px 8px;color:var(--roxo2)}
+  .main{flex:999 1 700px}
+  .barra{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:14px 32px;border-bottom:1px solid var(--line);font-size:13px;color:var(--mut)}
+  .barra b{color:var(--txt);font-weight:600}
+  .barra .pill.roxa{background:var(--roxo);border-color:var(--roxo);color:#fff}
+  .wrap{max-width:1180px;margin:0 auto;padding:24px 32px 40px}
+  .data{color:var(--roxo2);font-weight:500;font-size:14px}
+  .tag{font-size:12px;font-weight:600;letter-spacing:.12em;color:var(--ouro);text-transform:uppercase}
+  h1{font-family:'Space Grotesk',Inter,sans-serif;font-weight:800;font-size:34px;margin:6px 0 4px;line-height:1.1}
+  .sub{color:var(--mut);margin:0 0 18px;font-size:15px}
+  .topo{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+  .topo>div:first-child{flex:1 1 100%}
+  .resumo{flex:1 1 100%;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:4px 0 16px}
+  @media (max-width:860px){.resumo{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  .stat{--c:#A78BFA;display:flex;align-items:center;gap:10px;min-width:0;padding:9px 12px 9px 9px;border-radius:14px;background:linear-gradient(135deg,color-mix(in srgb,var(--c) 16%,#11111D),#11111D 70%);border:1px solid color-mix(in srgb,var(--c) 38%,transparent)}
+  .stat .si{flex:none;width:clamp(34px,3vw,42px);height:clamp(34px,3vw,42px);border-radius:11px;display:grid;place-items:center;color:var(--c);background:color-mix(in srgb,var(--c) 18%,transparent);box-shadow:0 0 18px color-mix(in srgb,var(--c) 25%,transparent)}
+  .stat .si svg{width:24px;height:24px}
+  .stat .st{display:flex;flex-direction:column;line-height:1.2}
+  .stat small{color:var(--mut);font-size:12px}
+  .stat .st{min-width:0}.stat b,.stat small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .stat b{font-family:'Space Grotesk',Inter,sans-serif;font-size:clamp(15px,1.45vw,19px);font-weight:700}
+  .s-chuva{--c:#5B9BFF}.s-quente{--c:#FFB547}.s-frio{--c:#7FE3F5}.s-hora{--c:#A78BFA}
+  .pill{display:inline-flex;align-items:center;gap:8px;background:var(--card2);border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-size:13px;font-weight:500}
+  .pill i{width:8px;height:8px;border-radius:50%;display:inline-block}
+  .grade{display:flex;flex-wrap:wrap;gap:16px;margin-top:6px}
+  .mapa{flex:1 1 100%;position:relative;aspect-ratio:1774/887;border-radius:16px;overflow:hidden;border:1px solid var(--line);background:#0B0D24}
+  .mapa>img{position:absolute;inset:0;width:100%;height:100%;filter:brightness(.84) saturate(.68) contrast(1.06)}
+  .mapa>canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+  .pin{position:absolute;width:30px;height:30px;transform:translate(-50%,-50%);background:none;border:0;padding:0;cursor:pointer;color:var(--txt);font:inherit}
+  .pin .ponto{position:absolute;left:50%;top:50%;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:var(--roxo2);box-shadow:0 0 0 3px rgba(10,10,20,.8),0 0 14px var(--roxo)}
+  .pin.falha .ponto{background:var(--erro);box-shadow:0 0 0 3px rgba(10,10,20,.8),0 0 14px var(--erro)}
+  .pin.falha .ponto::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid var(--erro);animation:ping 1.6s ease-out infinite}
+  .chip{position:absolute;left:calc(50% + 12px);top:-14px;white-space:nowrap;display:flex;align-items:center;gap:10px;background:rgba(14,14,26,.94);border:1px solid var(--line);border-radius:12px;padding:6px 12px 6px 6px;font-size:13px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.45);transition:border-color .2s,transform .2s}
+  .chip .ic{width:36px;height:36px;border-radius:9px;background:#1B1B30;display:grid;place-items:center;overflow:hidden}
+  .chip .ic svg{width:30px;height:30px}
+  .chip .tx{display:flex;flex-direction:column;line-height:1.2}
+  .chip .tx small{font-size:12px}
+  .chip .tp{font-family:'Space Grotesk',Inter,sans-serif;font-size:20px;font-weight:700;margin-left:4px}
+  .pin.falha .chip{border-color:rgba(248,113,113,.6)}
+  .pin:hover .chip{transform:translateY(-2px)}
+  .pin.esq .chip{left:auto;right:calc(50% + 12px)}
+  .pin.cima .chip{left:50%;top:auto;bottom:calc(50% + 12px);transform:translateX(-50%)}
+  .pin.cima:hover .chip{transform:translateX(-50%) translateY(-2px)}
+  .pin:hover .chip,.pin:focus-visible .chip{border-color:var(--roxo2)}
+  .pin:focus-visible{outline:none}.pin:focus-visible .ponto{outline:2px solid #fff;outline-offset:4px}
+  .chip small{color:var(--mut);font-weight:500;font-size:12px}
+  
+  .lista{flex:1 1 100%}
+  .hist{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 20px;overflow-x:auto}
+  .hcab{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:10px;margin-bottom:14px}
+  .hcab>div:first-child{flex:1 1 100%}
+  .hcab h2{font-family:'Space Grotesk',Inter,sans-serif;font-size:20px;margin:0}
+  .hcab p{margin:2px 0 0;color:var(--mut);font-size:13px}
+  .leg{flex:1 1 100%;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;margin-top:6px}
+  @media (max-width:860px){.leg{grid-template-columns:repeat(4,minmax(0,1fr))}}
+  .lin{display:grid;grid-template-columns:minmax(170px,1.6fr) repeat(6,minmax(64px,1fr));align-items:center;gap:8px;width:100%;min-width:560px;border-top:1px solid var(--line);padding:7px 6px;color:var(--txt);border-radius:8px}
+  .lin:not(.cab):hover{background:#17172A}
+  .lin button{font:inherit;color:inherit;cursor:pointer;border:0}
+  button.cid{background:none;padding:0;text-align:left;min-height:34px}
+  button.q{width:100%;padding:0}
+  button.q:hover,button.q:focus-visible{outline:2px solid var(--roxo2);outline-offset:2px}
+  .lin.cab{cursor:default;border-top:0;color:var(--mut);font-size:12px;padding-top:0}
+  .cid{display:flex;align-items:center;gap:10px}.cid svg{width:26px;height:26px;flex:none}.cid b{font-size:14px;font-weight:600}.cid small{color:var(--mut);margin-left:auto;padding-right:8px}
+  .dd{text-align:center}
+  .q{height:48px;border-radius:10px;display:flex;align-items:center;justify-content:center;gap:8px}
+  .q svg{width:28px;height:28px}
+  .mm{display:flex;flex-direction:column;line-height:1.1;text-align:left}.mm b{font-family:'Space Grotesk',Inter,sans-serif;font-size:17px;font-weight:700}.mm small{font-size:12px;color:var(--mut)}
+  .c-sol{background:rgba(245,192,74,.22);box-shadow:inset 0 0 0 1px rgba(245,192,74,.5)}
+  .c-nublado{background:rgba(150,156,190,.2);box-shadow:inset 0 0 0 1px rgba(150,156,190,.45)}
+  .c-chuva{background:rgba(79,141,240,.24);box-shadow:inset 0 0 0 1px rgba(79,141,240,.55)}
+  .c-tempestade{background:rgba(124,92,230,.32);box-shadow:inset 0 0 0 1px rgba(150,120,255,.7)}
+  .c-neve{background:rgba(232,238,255,.2);box-shadow:inset 0 0 0 1px rgba(232,238,255,.6)}
+  .c-neblina{background:rgba(190,194,212,.14);box-shadow:inset 0 0 0 1px rgba(190,194,212,.4)}
+  .q.fut{background-image:repeating-linear-gradient(135deg,transparent 0 6px,rgba(255,255,255,.05) 6px 8px)}
+  .lin.cab .dd:nth-child(n+5){color:var(--roxo2)}
+  .lin.cab .dd:nth-child(4){color:var(--txt);font-weight:600}
+  .q.hj{box-shadow:inset 0 0 0 2px var(--roxo2),0 0 0 2px rgba(167,139,250,.25)}
+  .lg{display:flex;align-items:center;justify-content:center;gap:6px;min-height:36px;padding:4px 6px;border-radius:999px;font-size:clamp(11.5px,1.05vw,13px);font-weight:500;color:var(--txt);white-space:nowrap;min-width:0}
+  .lg svg{width:18px;height:18px;flex:none}
+  .lg-prev{padding:4px 10px;background:repeating-linear-gradient(135deg,#17172A 0 6px,#1F1F36 6px 8px);box-shadow:inset 0 0 0 1px var(--line);color:#DCD0FF}
+
+  .item{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;min-height:56px;cursor:pointer;color:var(--txt);font:inherit}
+  .item:hover{border-color:var(--roxo2)}
+  .item svg{width:28px;height:28px;flex:none}
+  .item .n{flex:1}.item .n b{display:block;font-size:14px}.item .n span{color:var(--mut);font-size:12px}
+  .item .t{font-family:'Space Grotesk',Inter,sans-serif;font-size:22px;font-weight:700}
+  .item i{width:8px;height:8px;border-radius:50%;background:var(--ok);flex:none}.item.falha i{background:var(--erro)}
+  .nota{color:var(--mut);font-size:12px;margin-top:10px}
+  .a-gota{animation:gota .8s linear infinite}.a-gota:nth-child(2){animation-delay:-.27s}.a-gota:nth-child(3){animation-delay:-.53s}
+  .a-floco{animation:floco 2.2s linear infinite}.a-floco:nth-child(2){animation-delay:-.7s}.a-floco:nth-child(3){animation-delay:-1.4s}
+  .a-raios{transform-origin:16px 16px;animation:gira 12s linear infinite}
+  .a-raio{animation:pisca 2.6s steps(1) infinite}
+  .a-nev{animation:desliza 3s ease-in-out infinite alternate}.a-nev:nth-child(2n){animation-direction:alternate-reverse}
+  .a-nuvem{animation:flutua 4s ease-in-out infinite alternate}
+  @keyframes gota{from{transform:translateY(-4px);opacity:0}30%{opacity:1}to{transform:translateY(5px);opacity:0}}
+  @keyframes floco{from{transform:translateY(-4px);opacity:0}30%{opacity:1}to{transform:translateY(6px) translateX(1px);opacity:0}}
+  @keyframes gira{to{transform:rotate(360deg)}}
+  @keyframes pisca{0%,70%,78%,100%{opacity:0}72%,82%{opacity:1}}
+  @keyframes desliza{to{transform:translateX(3px)}}
+  @keyframes flutua{to{transform:translateX(1.5px)}}
+  .palco{position:absolute;left:0;top:0;width:1110px;height:555px;transform-origin:0 0;transform:scale(var(--k,1))}
+  .palco.mini .balao{display:none}
+  .palco.mini .chip{transform:scale(calc(1/var(--k)));transform-origin:left center;top:2px;padding:3px 8px;font-size:12px;box-shadow:none}
+  .palco.mini .pin.esq .chip{transform-origin:right center}
+  .palco.mini .pin.cima .chip{transform:translateX(-50%) scale(calc(1/var(--k)));transform-origin:center bottom;top:auto}
+  .palco.mini .chip .ic,.palco.mini .chip .tp,.palco.mini .chip small{display:none}
+  .palco>img.gabi{position:absolute;inset:auto;left:0;bottom:0;width:14.5%;height:auto;pointer-events:none;filter:drop-shadow(0 10px 24px rgba(0,0,0,.6))}
+  .balao{position:absolute;left:1.5%;bottom:33%;max-width:210px;background:#fff;color:#141428;border-radius:14px;padding:10px 14px;font-size:13px;font-weight:500;line-height:1.4;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+  .balao b{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--roxo)}
+  .balao::before{content:"";position:absolute;left:58px;bottom:-7px;border:8px solid transparent;border-top-color:#fff;border-bottom:0}
+  @media (prefers-reduced-motion:reduce){[class^="a-"],[class*=" a-"]{animation:none!important}}
+  .veu{position:fixed;inset:0;background:#05050C;opacity:0;pointer-events:none;transition:opacity .35s ease;z-index:50}
+  .veu.on{opacity:1}
+  @keyframes ping{from{transform:scale(.6);opacity:.9}to{transform:scale(2.2);opacity:0}}
+  /* sala */
+  .sala{display:none}.sala.on{display:block}.vmapa.off{display:none}
+  .voltar{margin-bottom:14px}
+  .cena{position:relative;width:100%;aspect-ratio:1672/941;border-radius:16px;overflow:hidden;border:1px solid var(--line);background:#000}
+  .cena img,.cena canvas{position:absolute;inset:0;width:100%;height:100%}
+  .cena img{transition:opacity .9s ease}
+  .selo{position:absolute;top:16px;right:16px;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:600;letter-spacing:.04em;background:rgba(10,10,20,.8);border:1px solid var(--line);backdrop-filter:blur(6px)}
+  .selo.prev{border-color:var(--roxo2);color:#DCD0FF}
+  .info{position:absolute;left:16px;bottom:16px;background:rgba(10,10,20,.8);border:1px solid var(--line);border-radius:12px;padding:10px 14px;backdrop-filter:blur(6px)}
+  .info b{font-family:'Space Grotesk',Inter,sans-serif;font-size:20px;display:block}
+  .info span{color:var(--mut);font-size:13px}
+  .info .erro{color:var(--erro);display:block;margin-top:4px;font-weight:600}
+  .ajustes{margin-top:14px;background:var(--card);border:1px solid var(--line);border-radius:14px}
+  .ajustes summary{cursor:pointer;list-style:none;padding:14px 18px;font-weight:600;font-size:14px;display:flex;align-items:center;gap:10px}
+  .ajustes summary::-webkit-details-marker{display:none}
+  .ajustes summary::before{content:"";width:8px;height:8px;border-right:2px solid var(--mut);border-bottom:2px solid var(--mut);transform:rotate(-45deg);transition:transform .2s}
+  .ajustes[open] summary::before{transform:rotate(45deg)}
+  .ajustes summary span{color:var(--mut);font-weight:400;font-size:13px}
+  .ajustes .painel{padding:0 16px 16px;margin-top:0}
+  .painel{display:flex;flex-wrap:wrap;gap:16px;margin-top:16px}
+  .grupo{flex:1 1 260px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+  .grupo h2{margin:0 0 10px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);font-weight:600}
+  .botoes{display:flex;flex-wrap:wrap;gap:8px}
+  button.b{font:inherit;font-size:14px;font-weight:500;color:var(--txt);background:#1A1A2C;border:1px solid var(--line);border-radius:999px;padding:9px 16px;min-height:40px;cursor:pointer}
+  button.b:hover{border-color:var(--roxo2)}
+  button.b[aria-pressed="true"]{background:var(--roxo);border-color:var(--roxo);color:#fff}
+  input[type=range]{width:100%;accent-color:var(--roxo)}
+  .rot{display:flex;justify-content:space-between;color:var(--mut);font-size:12px;margin-top:4px}
+  
+  @media (prefers-reduced-motion:reduce){.pin.falha .ponto::after{animation:none}}
+</style>
+</head>
+<body>
+<div class="app">
+<nav class="side" aria-label="Menu do FlowDesk" data-test="menu"><div class="logo"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3l11 6-11 6-11-6z" fill="#8B5CF6"/><path d="M5 15l11 6 11-6" fill="none" stroke="#A78BFA" stroke-width="2.6" stroke-linejoin="round"/><path d="M5 21l11 6 11-6" fill="none" stroke="#C4B5FD" stroke-width="2.6" stroke-linejoin="round"/></svg>FlowDesk</div><a class="nav " href="#" aria-disabled="true" tabindex="-1" onclick="return false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Início</a><a class="nav " href="#" aria-disabled="true" tabindex="-1" onclick="return false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4"/></svg>Missões</a><a class="nav " href="#" aria-disabled="true" tabindex="-1" onclick="return false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M4 4h4v16H4zM10 4h4v10h-4zM16 4h4v13h-4z"/></svg>Quadro</a><a class="nav " href="#" aria-disabled="true" tabindex="-1" onclick="return false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M4 5h16v14H4zM4 10h16"/></svg>Chamados</a><a class="nav " href="#" aria-disabled="true" tabindex="-1" onclick="return false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>FlowChat</a><a class="nav on" href="#" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>Filiais<span class=badge>novo</span></a><a class="nav " href="#" aria-disabled="true" tabindex="-1" onclick="return false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-5-5M11 8v6M8 11h6"/></svg>Caça aos bugs</a><a class="nav " href="#" aria-disabled="true" tabindex="-1" onclick="return false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M5 4h14v16H5zM9 9h6M9 13h6"/></svg>Carreira</a></nav>
+<div class="main">
+<div class="barra"><span>CARREIRA</span><span class="pill">Júnior</span><span class="pill roxa">Pleno</span><span style="margin-left:auto"><b>Sprint 21</b> · monitor diário às 07:00</span></div>
+<div class="wrap">
+
+<section class="vmapa" id="vmapa">
+  <div class="topo">
+    <div>
+      <div class="data" id="dataHoje">Hoje</div>
+      <h1>Clima das filiais</h1>
+      <p class="sub">O tempo agora nas 8 filiais do FlowDesk. Clique numa cidade pra abrir a sala.</p>
+    </div>
+    <div class="resumo">
+      <div class="stat s-chuva"><span class="si"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 15a4 4 0 0 1 .6-7.9A5.5 5.5 0 0 1 18.2 8 4 4 0 0 1 17.5 15z" fill="currentColor" opacity=".9"/><path class="a-gota" d="M9 18l-1 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path class="a-gota" d="M13 18l-1 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path class="a-gota" d="M17 18l-1 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span class="st"><small>Chuva agora</small><b id="rChuva" data-test="resumo-chuva">–</b></span></div>
+      <div class="stat s-quente"><span class="si"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><g class="a-raios" style="transform-origin:12px 12px" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></g></svg></span><span class="st"><small>Mais quente</small><b id="rQuente" data-test="resumo-quente">–</b></span></div>
+      <div class="stat s-frio"><span class="si"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v20M3.5 7l17 10M20.5 7l-17 10M9 3.5l3 2.5 3-2.5M9 20.5l3-2.5 3 2.5"/></svg></span><span class="st"><small>Mais frio</small><b id="rFrio" data-test="resumo-frio">–</b></span></div>
+      <div class="stat s-hora"><span class="si"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="st"><small>Brasília</small><b id="relogio" data-test="relogio-brasilia">–</b></span></div>
+    </div>
+  </div>
+  <div class="grade">
+    <div class="mapa" id="mapa" data-test="mapa">
+      <img src="img/mapa.jpg" alt="Mapa-múndi com as filiais do FlowDesk">
+      <canvas id="noite" aria-hidden="true"></canvas>
+      <div class="palco" id="palco"><div id="pins"></div></div>
+    </div>
+    <div class="lista" id="lista"></div>
+  </div>
+  <p class="nota" id="fonte" data-test="fonte-dados"></p>
+</section>
+
+<section class="sala" id="sala">
+  <div class="botoes" style="margin-bottom:14px"><button class="b" id="voltar" data-test="voltar-mapa">← Voltar ao mapa</button><button class="b" id="verHoje" data-test="ver-hoje" hidden>Ver hoje</button></div>
+  <div class="cena" id="cena" data-test="sala">
+    <img id="imgA" alt=""><img id="imgB" alt="" style="opacity:0">
+    <canvas id="fx" aria-hidden="true"></canvas>
+    <div class="selo" id="selo" data-test="sala-selo" hidden></div>
+    <div class="info" aria-live="polite"><b id="infoCidade" data-test="sala-cidade"></b><span id="infoClima" data-test="sala-clima"></span><span class="erro" id="infoErro"></span></div>
+  </div>
+  <details class="ajustes"><summary data-test="ajustar-cena">Ajustar cena <span>clima, período e intensidade</span></summary>
+  <div class="painel">
+    <div class="grupo"><h2>Clima</h2><div class="botoes" id="climas"></div></div>
+    <div class="grupo" style="flex:0 1 220px"><h2>Período</h2><div class="botoes" id="periodos"></div></div>
+    <div class="grupo"><h2>Intensidade</h2><input type="range" id="intens" data-test="intensidade" min="0" max="2" step="1" value="1" aria-label="Intensidade do efeito"><div class="rot"><span>Leve</span><span>Normal</span><span>Forte</span></div></div>
+  </div></details>
+</section>
+
+</div>
+</div>
+</div>
+<div class="veu" id="veu" aria-hidden="true"></div>
+<script>
+{
+const FIL=[
+ {id:'floripa',nome:'Florianópolis',tz:'America/Sao_Paulo',x:31.85,y:74.97,lat:-27.6,lon:-48.55},
+ {id:'nova-york',nome:'Nova York',tz:'America/New_York',x:27.96,y:33.6,lat:40.71,lon:-74,esq:true},
+ {id:'londres',nome:'Londres',tz:'Europe/London',x:45.94,y:28.75,lat:51.5,lon:-0.12},
+ {id:'reykjavik',nome:'Reykjavik',tz:'Atlantic/Reykjavik',x:40.7,y:18.26,lat:64.15,lon:-21.9,esq:true},
+ {id:'dubai',nome:'Dubai',tz:'Asia/Dubai',x:62.57,y:45.1,lat:25.2,lon:55.27},
+ {id:'cingapura',nome:'Cingapura',tz:'Asia/Singapore',x:76.66,y:61.44,lat:1.35,lon:103.8,esq:true},
+ {id:'toquio',nome:'Tóquio',tz:'Asia/Tokyo',x:86.36,y:36.64,lat:35.68,lon:139.69,cima:true},
+ {id:'sydney',nome:'Sydney',tz:'Australia/Sydney',x:89.07,y:82.86,lat:-33.87,lon:151.2,esq:true}];
+const SNAP={"em":"2026-11-27T20:00:00Z","dados":[{"cur":{"time":"2026-11-27T17:00","temperature_2m":23.6,"weather_code":3,"is_day":1,"relative_humidity_2m":62,"wind_speed_10m":12.3},"daily":{"time":["2026-11-25","2026-11-26","2026-11-27","2026-11-28","2026-11-29","2026-11-30"],"weather_code":[45,3,53,81,51,53],"temperature_2m_max":[27.8,25.2,25.4,24.2,24.5,24.5],"temperature_2m_min":[20.9,18.5,17.3,18.0,19.5,20.5]}},{"cur":{"time":"2026-11-27T15:00","temperature_2m":9.6,"weather_code":3,"is_day":1,"relative_humidity_2m":77,"wind_speed_10m":23.0},"daily":{"time":["2026-11-25","2026-11-26","2026-11-27","2026-11-28","2026-11-29","2026-11-30"],"weather_code":[3,63,51,3,3,63],"temperature_2m_max":[6.1,11.4,14.0,7.5,13.1,15.2],"temperature_2m_min":[0.0,5.8,4.8,4.2,3.1,5.5]}},{"cur":{"time":"2026-11-27T20:00","temperature_2m":5.1,"weather_code":3,"is_day":0,"relative_humidity_2m":83,"wind_speed_10m":11.9},"daily":{"time":["2026-11-25","2026-11-26","2026-11-27","2026-11-28","2026-11-29","2026-11-30"],"weather_code":[3,3,51,61,3,3],"temperature_2m_max":[6.4,6.2,5.6,11.2,10.4,11.8],"temperature_2m_min":[3.8,2.7,2.0,5.6,4.6,8.7]}},{"cur":{"time":"2026-11-27T20:00","temperature_2m":4.4,"weather_code":0,"is_day":0,"relative_humidity_2m":64,"wind_speed_10m":28.4},"daily":{"time":["2026-11-25","2026-11-26","2026-11-27","2026-11-28","2026-11-29","2026-11-30"],"weather_code":[61,61,61,61,63,86],"temperature_2m_max":[5.7,7.7,6.9,6.5,4.6,0.7],"temperature_2m_min":[2.4,2.7,1.8,1.8,0.3,-4.2]}},{"cur":{"time":"2026-11-28T00:00","temperature_2m":25.2,"weather_code":0,"is_day":0,"relative_humidity_2m":68,"wind_speed_10m":2.7},"daily":{"time":["2026-11-26","2026-11-27","2026-11-28","2026-11-29","2026-11-30","2026-12-01"],"weather_code":[0,0,0,0,0,0],"temperature_2m_max":[28.4,27.8,27.4,28.6,29.6,29.6],"temperature_2m_min":[25.0,24.7,22.0,23.0,24.3,23.5]}},{"cur":{"time":"2026-11-28T04:00","temperature_2m":24.2,"weather_code":3,"is_day":0,"relative_humidity_2m":99,"wind_speed_10m":4.6},"daily":{"time":["2026-11-26","2026-11-27","2026-11-28","2026-11-29","2026-11-30","2026-12-01"],"weather_code":[53,81,80,80,95,81],"temperature_2m_max":[31.2,31.9,30.5,29.6,30.6,32.0],"temperature_2m_min":[23.7,24.2,23.6,23.5,23.4,22.7]}},{"cur":{"time":"2026-11-28T05:00","temperature_2m":9.4,"weather_code":63,"is_day":0,"relative_humidity_2m":98,"wind_speed_10m":3.7},"daily":{"time":["2026-11-26","2026-11-27","2026-11-28","2026-11-29","2026-11-30","2026-12-01"],"weather_code":[2,3,63,2,0,0],"temperature_2m_max":[13.9,16.3,19.8,13.0,14.5,18.0],"temperature_2m_min":[4.3,6.3,8.3,6.4,4.6,3.4]}},{"cur":{"time":"2026-11-28T07:00","temperature_2m":21.4,"weather_code":3,"is_day":1,"relative_humidity_2m":86,"wind_speed_10m":16.2},"daily":{"time":["2026-11-26","2026-11-27","2026-11-28","2026-11-29","2026-11-30","2026-12-01"],"weather_code":[51,51,96,51,51,3],"temperature_2m_max":[23.8,24.8,27.4,24.8,20.4,22.0],"temperature_2m_min":[16.5,19.4,21.2,19.2,16.9,16.2]}}]};
+function clima(c){if(c<=1)return'sol';if(c<=3)return'nublado';if(c===45||c===48)return'neblina';if(c>=95)return'tempestade';if((c>=71&&c<=77)||c===85||c===86)return'neve';return'chuva'}
+let fonte='';
+function aplica(arr,live,quando){arr.forEach((c,i)=>{const f=FIL[i];f.t=Math.round(c.cur?c.cur.temperature_2m:c.current.temperature_2m);const cu=c.cur||c.current;f.code=cu.weather_code;f.clima=clima(cu.weather_code);f.hum=cu.relative_humidity_2m;f.vento=Math.round(cu.wind_speed_10m);
+  const d=c.daily;f.hist=d.time.map((t,k)=>({data:t,clima:clima(d.weather_code[k]),max:Math.round(d.temperature_2m_max[k]),min:Math.round(d.temperature_2m_min[k])}))});
+  const hh=new Intl.DateTimeFormat('pt-BR',{timeZone:'America/Sao_Paulo',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}).format(quando);
+  fonte=live?`Dados reais da Open-Meteo, atualizados agora (${hh})`:`Dados reais da Open-Meteo de ${hh} (sem conexão com a API agora, mostrando o último dado salvo)`}
+aplica(SNAP.dados,false,new Date(SNAP.em));
+async function buscaAoVivo(){try{const lat=FIL.map(f=>f.lat).join(','),lon=FIL.map(f=>f.lon).join(',');const base=`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&timezone=auto`;
+  const [a,b]=await Promise.all([fetch(base+'&current=temperature_2m,weather_code,is_day,relative_humidity_2m,wind_speed_10m').then(r=>r.json()),fetch(base+'&daily=weather_code,temperature_2m_max,temperature_2m_min&past_days=2&forecast_days=4').then(r=>r.json())]);
+  aplica(a.map((c,i)=>({current:c.current,daily:b[i].daily})),true,new Date());desenhaMapa()}catch(e){}}
+const NOME_CLIMA={sol:'Céu limpo',nublado:'Nublado',chuva:'Chuva',tempestade:'Tempestade',neve:'Neve',neblina:'Neblina'};
+const CLIMAS=Object.entries(NOME_CLIMA), PERIODOS=[['dia','Dia'],['noite','Noite']];
+const hora=tz=>new Intl.DateTimeFormat('pt-BR',{timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date());
+const ehNoite=tz=>{const h=+new Intl.DateTimeFormat('en-GB',{timeZone:tz,hour:'2-digit',hour12:false}).format(new Date());return h<6||h>=18};
+function icone(c,noite){
+  const sol='<circle cx="16" cy="16" r="6" fill="#FFC94D"/><g stroke="#FFC94D" stroke-width="2" stroke-linecap="round"><path d="M16 3v3M16 26v3M3 16h3M26 16h3M6.8 6.8l2.1 2.1M23.1 23.1l2.1 2.1M6.8 25.2l2.1-2.1M23.1 8.9l2.1-2.1"/></g>';
+  const lua='<path d="M20 5a11 11 0 1 0 7 17A9 9 0 0 1 20 5z" fill="#E9E4C8"/>';
+  const nuvem=(f='#C9CCE0')=>`<path d="M9 24a5 5 0 0 1 .8-9.9A7 7 0 0 1 23.4 13 5.5 5.5 0 0 1 23 24z" fill="${f}"/>`;
+  const sun='<circle cx="16" cy="16" r="6" fill="#FFC94D"/><g class="a-raios" stroke="#FFC94D" stroke-width="2" stroke-linecap="round"><path d="M16 3v3M16 26v3M3 16h3M26 16h3M6.8 6.8l2.1 2.1M23.1 23.1l2.1 2.1M6.8 25.2l2.1-2.1M23.1 8.9l2.1-2.1"/></g>';
+  const gotas=c=>`<g stroke="${c}" stroke-width="2" stroke-linecap="round"><path class="a-gota" d="M11 25l-1 3"/><path class="a-gota" d="M16 25l-1 3"/><path class="a-gota" d="M21 25l-1 3"/></g>`;
+  const m={sol:noite?lua+'<circle class="a-raio" cx="7" cy="8" r="1" fill="#fff"/>':sun, nublado:'<g class="a-nuvem">'+nuvem()+'</g>',
+    chuva:'<g transform="translate(0,-3)">'+nuvem('#9EA6C6')+'</g>'+gotas('#7CB7FF'),
+    tempestade:'<g transform="translate(0,-3)">'+nuvem('#7E86A8')+'</g>'+gotas('#7CB7FF')+'<path class="a-raio" d="M17 19l-4 6h3l-2 4 6-7h-3l2-3z" fill="#FFD84D"/>',
+    neve:'<g transform="translate(0,-3)">'+nuvem('#D6DCEE')+'</g><g fill="#fff"><circle class="a-floco" cx="11" cy="26" r="1.6"/><circle class="a-floco" cx="16" cy="27" r="1.6"/><circle class="a-floco" cx="21" cy="26" r="1.6"/></g>',
+    neblina:'<g stroke="#C9CCE0" stroke-width="2.4" stroke-linecap="round"><path class="a-nev" d="M5 11h22"/><path class="a-nev" d="M8 16h19"/><path class="a-nev" d="M5 21h22"/><path class="a-nev" d="M9 26h16"/></g>'};
+  return `<svg viewBox="0 0 32 32" aria-hidden="true">${m[c]}</svg>`;
+}
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+// ---------- mapa ----------
+function desenhaMapa(){
+  document.getElementById('pins').innerHTML=FIL.map(f=>{const n=ehNoite(f.tz);return `<button data-test="filial-${f.id}" class="pin${f.esq?' esq':''}${f.cima?' cima':''}" style="left:${f.x}%;top:${f.y}%" data-id="${f.id}" aria-label="${esc(f.nome)}, ${f.t} graus, ${esc(NOME_CLIMA[f.clima])}"><span class="ponto"></span><span class="chip"><span class="ic">${icone(f.clima,n)}</span><span class="tx">${esc(f.nome)}<small>${hora(f.tz)} · ${n?'noite':'dia'}</small></span><span class="tp" data-test="temperatura-${f.id}">${f.t}°</span></span></button>`}).join('');
+  const dias=['anteontem','ontem','Hoje','amanhã',...[4,5].map(k=>{const d=new Date(Date.now()+(k-2)*864e5);return new Intl.DateTimeFormat('pt-BR',{timeZone:'America/Sao_Paulo',weekday:'long'}).format(d).split('-')[0]})];
+  const linhas=FIL.map(f=>{const n=ehNoite(f.tz);
+    return `<div class="lin"><button class="cid" data-test="linha-${f.id}" data-id="${f.id}">${icone(f.clima,n)}<b>${esc(f.nome)}</b><small>${f.t}°</small></button>${f.hist.map((h,i)=>`<button data-test="dia-${f.id}-${i}" data-clima="${h.clima}" class="q c-${h.clima}${i===2?' hj':''}${i>2?' fut':''}" data-id="${f.id}" data-dia="${i}" title="${esc(h.data)}: ${esc(NOME_CLIMA[h.clima])}, ${h.min}° a ${h.max}°" aria-label="${esc(f.nome)}, ${dias[i]}: ${esc(NOME_CLIMA[h.clima])}, máxima ${h.max} graus">${icone(h.clima,false)}<span class="mm"><b>${h.max}°</b><small>${h.min}°</small></span></button>`).join('')}</div>`}).join('');
+  const leg=Object.entries(NOME_CLIMA).map(([k,v])=>`<span class="lg c-${k}">${icone(k,false)}${v}</span>`).join('')+'<span class="lg lg-prev">Previsão</span>';
+  document.getElementById('lista').innerHTML=`<div class="hist"><div class="hcab"><div><h2>Clima · 2 dias atrás e 3 dias à frente</h2><p>Máxima de cada dia. Clique num dia pra ver a sala naquele dia</p></div><div class="leg">${leg}</div></div><div class="lin cab"><span class="cid">Filial</span>${dias.map(d=>`<span class="dd">${d}</span>`).join('')}</div>${linhas}</div>`;
+  document.getElementById('fonte').textContent=fonte;
+
+  const chuvosas=FIL.filter(f=>f.clima==='chuva'||f.clima==='tempestade').length;
+  const q=FIL.reduce((a,b)=>b.t>a.t?b:a),fr=FIL.reduce((a,b)=>b.t<a.t?b:a);
+  document.getElementById('rChuva').textContent=chuvosas?`${chuvosas} ${chuvosas>1?'filiais':'filial'}`:'Nenhuma';
+  document.getElementById('rQuente').textContent=`${q.nome} ${q.t}°`;
+  document.getElementById('rFrio').textContent=`${fr.nome} ${fr.t}°`;
+  document.getElementById('relogio').textContent=hora('America/Sao_Paulo');
+  const dh=new Intl.DateTimeFormat('pt-BR',{timeZone:'America/Sao_Paulo',weekday:'long',day:'numeric',month:'long'}).format(new Date());document.getElementById('dataHoje').textContent=dh.charAt(0).toUpperCase()+dh.slice(1);
+}
+const veu=document.getElementById('veu');
+function transicao(fn){if(reduzT){fn();return}veu.classList.add('on');setTimeout(()=>{fn();requestAnimationFrame(()=>setTimeout(()=>veu.classList.remove('on'),120))},360)}
+const reduzT=matchMedia('(prefers-reduced-motion: reduce)').matches;
+document.getElementById('vmapa').addEventListener('click',e=>{const b=e.target.closest('[data-id]');if(b){const id=b.dataset.id,dia=b.dataset.dia!==undefined?+b.dataset.dia:2;['dia','nublado','noite','noite-nublada'].forEach(v=>carrega(`img/${id}-${v}.jpg`));transicao(()=>abreSala(id,dia))}});
+
+// linha do dia e da noite (posição real do sol)
+const cn=document.getElementById('noite'),cx=cn.getContext('2d');
+const X=lon=>(0.28423*lon+46.567)/100, Y=lat=>(60.0995-33.3388*1.25*Math.log(Math.tan(Math.PI/4+0.4*lat*Math.PI/180)))/100;
+function sol(){const d=new Date(),n=(d-Date.UTC(d.getUTCFullYear(),0,1))/864e5,dec=-23.44*Math.cos(2*Math.PI/365*(n+10));const h=d.getUTCHours()+d.getUTCMinutes()/60;return{dec,lon:-(h-12)*15}}
+function noite(){
+  const r=cn.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,2);cn.width=r.width*dpr;cn.height=r.height*dpr;const W=cn.width,H=cn.height;cx.clearRect(0,0,W,H);
+  const s=sol(),rad=Math.PI/180;cx.beginPath();const pts=[];
+  for(let lon=-180;lon<=180;lon+=2){const ha=(lon-s.lon)*rad;const lat=Math.atan(-Math.cos(ha)/Math.tan(s.dec*rad))/rad;pts.push([X(lon)*W,Y(Math.max(-75,Math.min(78,lat)))*H])}
+  const sul=s.dec>0; cx.moveTo(pts[0][0],sul?H:0);pts.forEach(p=>cx.lineTo(p[0],p[1]));cx.lineTo(pts[pts.length-1][0],sul?H:0);cx.closePath();
+  cx.save();cx.filter=`blur(${16*dpr}px)`;cx.fillStyle='rgba(2,3,14,.72)';cx.fill();cx.restore();
+  if(terra.length){cx.save();cx.clip();for(const p of terra){const x=p[0]*W,y=p[1]*H,r=p[2]*W/1110;const g=cx.createRadialGradient(x,y,0,x,y,r*3);g.addColorStop(0,'rgba(255,214,140,.95)');g.addColorStop(.35,'rgba(255,190,110,.35)');g.addColorStop(1,'rgba(255,190,110,0)');cx.fillStyle=g;cx.fillRect(x-r*3,y-r*3,r*6,r*6)}cx.restore()}
+}
+addEventListener('resize',noite);
+const palco=document.getElementById('palco');
+new ResizeObserver(()=>{const w=document.getElementById('mapa').clientWidth;const k=w/1110;palco.style.setProperty('--k',k);palco.classList.toggle('mini',k<.62)}).observe(document.getElementById('mapa'));
+let terra=[];
+(function(){const im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=355;c.height=177;const x=c.getContext('2d');x.drawImage(im,0,0,c.width,c.height);let d;try{d=x.getImageData(0,0,c.width,c.height).data}catch(e){return}
+  const cand=[];for(let y=0;y<c.height;y++)for(let xx=0;xx<c.width;xx++){const i=(y*c.width+xx)*4;if(d[i+2]>110&&d[i]>70&&d[i+2]>d[i+1]*1.4)cand.push([xx,y])}
+  const cl=[];for(let k=0;k<70;k++)cl.push(cand[Math.floor(Math.random()*cand.length)]);
+  terra=[];for(let k=0;k<650&&cand.length;k++){let p;if(Math.random()<.7){const b=cl[k%cl.length];p=[b[0]+(Math.random()-.5)*8,b[1]+(Math.random()-.5)*5]}else p=cand[Math.floor(Math.random()*cand.length)];terra.push([p[0]/c.width,p[1]/c.height,Math.random()<.85?.8+Math.random()*.8:1.8])}
+  noite()};im.src='img/mapa.jpg'})();
+
+// ---------- sala ----------
+const st={cidade:'floripa',clima:'sol',periodo:'dia',int:1};
+const IW=1672,IH=941, WIN={x0:415,x1:1240,y0:95,y1:552};
+const reduz=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function botoes(id,lista,chave){const el=document.getElementById(id);el.innerHTML='';lista.forEach(([v,t])=>{const b=document.createElement('button');b.className='b';b.textContent=t;b.dataset.v=v;b.dataset.test=chave+'-'+v;b.addEventListener('click',()=>{st[chave]=v;atualiza()});el.appendChild(b)})}
+botoes('climas',CLIMAS,'clima');botoes('periodos',PERIODOS,'periodo');
+document.getElementById('intens').addEventListener('input',e=>{st.int=+e.target.value;reinicia()});
+const imgs=[document.getElementById('imgA'),document.getElementById('imgB')];let ativa=0;
+const cache={};function carrega(src){if(!cache[src]){cache[src]=new Image();cache[src].src=src}return cache[src]}
+function base(){const limpo=st.clima==='sol';return `img/${st.cidade}-${st.periodo==='dia'?(limpo?'dia':'nublado'):(limpo?'noite':'noite-nublada')}.jpg`}
+let luzes=[];
+function noiteEm(tz,d){const h=+new Intl.DateTimeFormat('en-GB',{timeZone:tz,hour:'2-digit',hour12:false}).format(d);return h<6||h>=18}
+function abreSala(id,dia=2){const f=FIL.find(x=>x.id===id);st.cidade=id;st.dia=dia;
+  if(dia===2){st.clima=f.clima;st.periodo=ehNoite(f.tz)?'noite':'dia'}
+  else{st.clima=f.hist[dia].clima;st.periodo='dia'}
+  ['dia','nublado','noite','noite-nublada'].forEach(v=>carrega(`img/${id}-${v}.jpg`));
+  document.getElementById('vmapa').classList.add('off');document.getElementById('sala').classList.add('on');scrollTo(0,0);tam();atualiza();
+  try{history.replaceState(null,'','#'+id)}catch(e){}}
+document.getElementById('verHoje').addEventListener('click',()=>transicao(()=>abreSala(st.cidade,2)));
+document.getElementById('voltar').addEventListener('click',()=>transicao(()=>{document.getElementById('sala').classList.remove('on');document.getElementById('vmapa').classList.remove('off');desenhaMapa();noite();try{history.replaceState(null,'',location.pathname)}catch(e){}}));
+function atualiza(){
+  document.querySelectorAll('#sala .botoes button').forEach(b=>{const k=b.parentElement.id==='climas'?'clima':'periodo';b.setAttribute('aria-pressed',st[k]===b.dataset.v)});
+  const f=FIL.find(x=>x.id===st.cidade);
+  const hoje=(st.dia??2)===2;
+  if(hoje){document.getElementById('infoCidade').textContent=`${f.nome} · ${f.t}°`;document.getElementById('infoClima').textContent=`Agora · ${NOME_CLIMA[st.clima]} · ${st.periodo==='dia'?'Dia':'Noite'} · ${hora(f.tz)} · umidade ${f.hum}% · vento ${f.vento} km/h`}
+  else{const h=f.hist[st.dia];const [y,m,d]=h.data.split('-');document.getElementById('infoCidade').textContent=`${f.nome} · ${h.max}° / ${h.min}°`;document.getElementById('infoClima').textContent=`${st.dia>2?'Previsão para ':''}${d}/${m} · ${NOME_CLIMA[h.clima]} · máxima ${h.max}°, mínima ${h.min}°`}
+  document.getElementById('infoErro').textContent='';
+  document.getElementById('verHoje').hidden=hoje;
+  const se=document.getElementById('selo');se.hidden=hoje;se.className='selo'+((st.dia??2)>2?' prev':'');se.textContent=(st.dia??2)>2?'PREVISÃO':'JÁ ACONTECEU';
+  const src=base(),im=carrega(src);
+  const troca=()=>{const prox=1-ativa;imgs[prox].src=src;imgs[prox].style.opacity=1;imgs[ativa].style.opacity=0;ativa=prox;achaLuzes(im)};
+  if(imgs[ativa].getAttribute('src')===src)achaLuzes(im);else if(im.complete)troca();else im.onload=troca;
+  reinicia();
+}
+function achaLuzes(im){
+  luzes=[];if(st.periodo!=='noite'||!im.complete)return;
+  const c=document.createElement('canvas');c.width=IW/4;c.height=IH/4;const x=c.getContext('2d');x.drawImage(im,0,0,c.width,c.height);
+  let d;try{d=x.getImageData(0,0,c.width,c.height).data}catch(e){return}
+  for(let y=WIN.y0/4;y<WIN.y1/4;y++)for(let xx=WIN.x0/4;xx<WIN.x1/4;xx++){const i=(Math.floor(y)*c.width+Math.floor(xx))*4;if(d[i]>200&&d[i+1]>150&&d[i+2]<170&&Math.random()<.35)luzes.push({x:xx*4,y:y*4,f:Math.random()*6.28,v:.6+Math.random()*1.8})}
+  luzes=luzes.sort(()=>Math.random()-.5).slice(0,140);
+}
+// ---------- canvas de efeitos ----------
+const cv=document.getElementById('fx'),ctx=cv.getContext('2d');
+const lay=document.createElement('canvas'),lx=lay.getContext('2d');
+const mascara=new Image();mascara.src='img/vidro.png';
+let S=1;function tam(){const r=cv.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,2);cv.width=lay.width=Math.round(r.width*dpr);cv.height=lay.height=Math.round(r.height*dpr);S=cv.width/IW}
+addEventListener('resize',tam);tam();
+
+const R=(a,b)=>a+Math.random()*(b-a);
+let letreiro={t:-1e9,prox:0},gotas=[],vidro=[],flocos=[],nevoa=[],raio={t:0,prox:0};
+function reinicia(){
+  const k=[.45,1,1.9][st.int];
+  gotas=[];vidro=[];flocos=[];nevoa=[];
+  const chuva=st.clima==='chuva'||st.clima==='tempestade', forte=st.clima==='tempestade'?1.7:1;
+  if(chuva){const n=Math.round(320*k*forte);for(let i=0;i<n;i++){const perto=Math.random()<.3;gotas.push({x:R(WIN.x0-80,WIN.x1),y:R(WIN.y0-40,WIN.y1),l:perto?R(24,38):R(10,18),v:perto?R(30,40):R(17,24),a:perto?.5:.3,w:perto?2:1})}
+    const nv=Math.round(70*Math.min(k*forte,2.2));for(let i=0;i<nv;i++)vidro.push(novaGotaVidro(true))}
+  if(st.clima==='neve'){const n=Math.round(260*k);for(let i=0;i<n;i++){const perto=Math.random()<.3;flocos.push({x:R(WIN.x0,WIN.x1),y:R(WIN.y0,WIN.y1),r:perto?R(2.6,4.2):R(1.2,2.2),v:perto?R(1.4,2.2):R(.6,1.2),f:R(0,6.28),a:perto?.95:.7})}}
+  if(st.clima==='neblina'){const n=Math.round(9+5*k);for(let i=0;i<n;i++)nevoa.push({x:R(WIN.x0-200,WIN.x1),y:R(WIN.y0+120,WIN.y1),rx:R(180,340),ry:R(60,110),v:R(.15,.45),a:R(.10,.22)*(.7+.3*k)})}
+  raio={t:0,prox:performance.now()+R(1500,3500)};
+}
+function novaGotaVidro(ini){const big=st.clima==='tempestade'||st.int===2;return{x:R(WIN.x0,WIN.x1),y:ini?R(WIN.y0,WIN.y1):WIN.y0+R(0,60),r:big?R(2.4,7):R(1.8,4.6),v:0,desce:Math.random()<(big?.55:.35),big}}
+
+let t0=performance.now();
+function quadro(t){
+  if(!lay.width||!lay.height||!document.getElementById('sala').classList.contains('on')){t0=t;requestAnimationFrame(quadro);return}
+  const dt=Math.min((t-t0)/16.67,3);t0=t;
+  lx.setTransform(1,0,0,1,0,0);lx.clearRect(0,0,lay.width,lay.height);lx.setTransform(S,0,0,S,0,0);
+  ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,cv.width,cv.height);
+  const noite=st.periodo==='noite', vel=reduz?0:dt;
+
+  // reflexo da sala no vidro (noite)
+  if(noite){const im=imgs[ativa];if(im&&im.complete&&im.naturalWidth){lx.save();lx.globalAlpha=.075;lx.translate(IW,0);lx.scale(-1,1);lx.drawImage(im,0,0,IW,IH);lx.restore()}}
+  // luzes da cidade piscando
+  if(noite&&luzes.length){for(const p of luzes){const a=.18+.22*Math.sin(t/1000*p.v+p.f);if(a<=0)continue;const g=lx.createRadialGradient(p.x,p.y,0,p.x,p.y,7);g.addColorStop(0,`rgba(255,220,150,${a})`);g.addColorStop(1,'rgba(255,220,150,0)');lx.fillStyle=g;lx.fillRect(p.x-7,p.y-7,14,14)}}
+
+  // sol: reflexo no vidro
+  if(st.clima==='sol'&&!noite){const k=[.6,1,1.4][st.int];const off=Math.sin(t/4000)*30;
+    const g=lx.createRadialGradient(1120+off,150,0,1120+off,150,360);g.addColorStop(0,`rgba(255,240,200,${.22*k})`);g.addColorStop(1,'rgba(255,240,200,0)');lx.fillStyle=g;lx.fillRect(WIN.x0,WIN.y0,WIN.x1-WIN.x0,WIN.y1-WIN.y0);
+    lx.save();lx.globalCompositeOperation='lighter';for(let i=0;i<3;i++){const x=560+i*230+off*1.5;lx.beginPath();lx.moveTo(x,WIN.y0);lx.lineTo(x+60+i*12,WIN.y0);lx.lineTo(x-140+i*12,WIN.y1);lx.lineTo(x-200,WIN.y1);lx.closePath();lx.fillStyle=`rgba(255,255,255,${(.05-i*.01)*k})`;lx.fill()}lx.restore()}
+
+  // neblina
+  for(const n of nevoa){n.x+=n.v*vel;if(n.x-n.rx>WIN.x1)n.x=WIN.x0-n.rx;const g=lx.createRadialGradient(n.x,n.y,0,n.x,n.y,n.rx);g.addColorStop(0,`rgba(${noite?'150,150,175':'225,228,236'},${n.a})`);g.addColorStop(1,'rgba(225,228,236,0)');lx.save();lx.translate(n.x,n.y);lx.scale(1,n.ry/n.rx);lx.translate(-n.x,-n.y);lx.fillStyle=g;lx.fillRect(n.x-n.rx,n.y-n.rx,n.rx*2,n.rx*2);lx.restore()}
+  if(st.clima==='neblina'){lx.fillStyle=`rgba(${noite?'120,120,145':'215,218,228'},${[.12,.2,.3][st.int]})`;lx.fillRect(WIN.x0,WIN.y0,WIN.x1-WIN.x0,WIN.y1-WIN.y0)}
+
+  // chuva
+  lx.lineCap='round';
+  for(const g of gotas){g.y+=g.v*vel;g.x+=g.v*.12*vel;if(g.y-g.l>WIN.y1){g.y=WIN.y0-R(0,60);g.x=R(WIN.x0-80,WIN.x1)}
+    lx.strokeStyle=`rgba(${noite?'170,185,220':'205,218,240'},${g.a})`;lx.lineWidth=g.w;lx.beginPath();lx.moveTo(g.x,g.y);lx.lineTo(g.x-g.l*.12,g.y-g.l);lx.stroke()}
+  for(let i=0;i<vidro.length;i++){const d=vidro[i];if(d.desce){d.v=Math.min(d.v+.02*vel,1.6);if(Math.random()<.02)d.v*=.3;d.y+=d.v*vel}
+    if(d.y>WIN.y1)vidro[i]=novaGotaVidro(false);
+    if(d.desce&&d.v>.4){lx.strokeStyle='rgba(225,232,250,.18)';lx.lineWidth=d.r*.9;lx.beginPath();lx.moveTo(d.x,d.y-d.r*(d.big?12:7));lx.lineTo(d.x,d.y);lx.stroke()}
+    lx.fillStyle='rgba(200,215,245,.28)';lx.beginPath();lx.arc(d.x,d.y,d.r,0,6.28);lx.fill();
+    lx.strokeStyle='rgba(240,245,255,.45)';lx.lineWidth=.8;lx.stroke();
+    lx.fillStyle='rgba(255,255,255,.7)';lx.beginPath();lx.arc(d.x-d.r*.3,d.y-d.r*.35,d.r*.3,0,6.28);lx.fill()}
+
+  // neve
+  for(const f of flocos){f.y+=f.v*vel;f.f+=.02*vel;f.x+=Math.sin(f.f)*.5*vel;if(f.y>WIN.y1){f.y=WIN.y0-5;f.x=R(WIN.x0,WIN.x1)}
+    lx.fillStyle=`rgba(255,255,255,${f.a})`;lx.beginPath();lx.arc(f.x,f.y,f.r,0,6.28);lx.fill()}
+
+  // raio
+  let flash=0;
+  if(st.clima==='tempestade'&&!reduz){if(t>raio.prox){raio.t=t;raio.prox=t+R(3500,8000)/(st.int+1)*1.6}
+    const e=t-raio.t;if(e<520)flash=e<70?.8:e<140?.15:e<200?.65:e<520?.5*(1-(e-200)/320):0}
+  if(flash>0){lx.fillStyle=`rgba(235,235,255,${flash})`;lx.fillRect(WIN.x0,WIN.y0,WIN.x1-WIN.x0,WIN.y1-WIN.y0)}
+
+  // recorta no vidro
+  if(mascara.complete){lx.setTransform(1,0,0,1,0,0);lx.globalCompositeOperation='destination-in';lx.drawImage(mascara,0,0,lay.width,lay.height);lx.globalCompositeOperation='source-over'}
+  ctx.drawImage(lay,0,0);
+  if(flash>0){ctx.fillStyle=`rgba(225,225,255,${flash*.22})`;ctx.fillRect(0,0,cv.width,cv.height)}
+  if(!reduz){if(t>letreiro.prox){letreiro.t=t;letreiro.prox=t+R(5000,11000)}const e=t-letreiro.t;let a=0;if(e<420){a=[0,.55,.1,.6,.25,0,.45,0][Math.floor(e/55)]||0}
+    const pul=.06+.04*Math.sin(t/900);ctx.save();ctx.setTransform(S,0,0,S,0,0);
+    const gw=ctx.createRadialGradient(355,232,10,355,232,120);gw.addColorStop(0,`rgba(167,139,250,${pul*(1-a)})`);gw.addColorStop(1,'rgba(167,139,250,0)');ctx.fillStyle=gw;ctx.fillRect(235,112,240,240);
+    if(a>0){const gd=ctx.createRadialGradient(355,235,0,355,235,85);gd.addColorStop(0,`rgba(12,8,30,${a})`);gd.addColorStop(.75,`rgba(12,8,30,${a*.8})`);gd.addColorStop(1,'rgba(12,8,30,0)');ctx.fillStyle=gd;ctx.fillRect(265,145,180,180)}
+    ctx.restore()}
+  if(!reduz||st.clima==='tempestade')requestAnimationFrame(quadro); else setTimeout(()=>requestAnimationFrame(quadro),500);
+}
+
+desenhaMapa();noite();buscaAoVivo();setInterval(()=>buscaAoVivo(),15*60000);setInterval(()=>{if(!document.getElementById('sala').classList.contains('on')){desenhaMapa();noite()}},60000);
+requestAnimationFrame(quadro);
+if(location.hash&&FIL.some(f=>'#'+f.id===location.hash))abreSala(location.hash.slice(1));
+}
+</script>
+</body>
+</html>
