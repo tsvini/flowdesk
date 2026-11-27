@@ -138,10 +138,10 @@ function semente() {
     planos: { 'FD-101': [] },
     chat: {
       'time-produto': [
-        { de: 'beatriz', tx: 'Bem-vindo ao time! Eu cuido das prioridades e das releases 👋', quando: dia(1, 9, 5) },
-        { de: 'rafael', tx: 'E aí! Os cards que você vai testar saem de mim.', quando: dia(1, 9, 5) },
-        { de: 'gabriela', tx: 'Oi! Se achar bug, me chama primeiro 😅', quando: dia(1, 9, 5) },
-        { de: 'lucas', tx: 'Seja bem-vindo. Daily às 9h15.', quando: dia(1, 9, 5) },
+        { de: 'beatriz', tx: 'Bem-vindo ao time! Eu cuido das prioridades e das releases 👋', quando: dia(0, 9, 5) },
+        { de: 'rafael', tx: 'E aí! Os cards que você vai testar saem de mim.', quando: dia(0, 9, 5) },
+        { de: 'gabriela', tx: 'Oi! Se achar bug, me chama primeiro 😅', quando: dia(0, 9, 5) },
+        { de: 'lucas', tx: 'Seja bem-vindo. Daily às 9h15.', quando: dia(0, 9, 5) },
       ],
       geral: [{ de: 'beatriz', tx: 'Lembrete: review da sprint na sexta às 16h.', quando: dia(1, 11) }],
       releases: [{ de: 'lucas', tx: 'Release da Sprint 13 publicada. Próxima: sexta, depois da review.', quando: dia(4, 18) }],
@@ -1634,6 +1634,8 @@ function respostaDoTime(tx, canal) {
   // EP10: perdeu a daily (o sinal caiu) e pergunta o que foi combinado
   if (VERSAO === 15 && d.cards.some((c) => c.tipo === 'bug' && c.coluna === 'qa') && /daily|combinad|perdi|caiu|sinal/.test(t)) return { de: 'gabriela', tx: 'Ficou combinado assim: corrigi os dois bugs na Sprint 15, e preciso do seu reteste pra liberar a versão 🙏' };
   if (VERSAO === 15 && reg && /regress|release|segur|recomend|subir|quebr/.test(t)) return R('beatriz', `Segura a release então. Gabi, prioridade no ${reg.id}.`, `Obrigada por avisar antes. Release segurada até o ${reg.id} sair.`);
+  // EP01: o QA chama o Rafael pra entender o que o FD-101 precisa fazer
+  if (/rafael/.test(t) && /d[uú]vida|conversar|minutos/.test(t)) return { de: 'rafael', tx: 'Claro! Bora depois do almoço 👍' };
   if (/bug|erro|falh|quebr/.test(t)) return bug ? R('gabriela', `Vi o ${bug.id}. Vou olhar ainda hoje e te aviso 👀`, `Já tô olhando o ${bug.id}. Se tiver print, joga no card!`) : R('gabriela', 'Opa! Abre o card em "Reportar bug" com o passo a passo que eu olho 👀', 'Me manda os passos pra reproduzir? Aí eu consigo ver aqui.');
   if (/regra|crit[eé]rio|card|fd-?10\d|limite|anexo|t[ií]tulo/.test(t)) return R('rafael', 'Tá tudo nos critérios do FD-101. Se faltar alguma regra, me chama que a gente conversa 👍', 'Boa! Se tiver dúvida de regra, pode perguntar. Eu prefiro responder agora do que descobrir depois.');
   if (/release|prazo|sexta|entrega|review/.test(t)) return R('beatriz', 'A release é sexta, depois da review. Se algo for segurar, me avisa antes 🙏', 'Anotado. Prioridade continua sendo o FD-101.');
