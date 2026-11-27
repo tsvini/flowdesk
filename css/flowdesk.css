@@ -1301,3 +1301,5 @@ textarea.in.curto{min-height:84px;resize:vertical;line-height:1.45}
 
 .chatv .chan a.chan-tranc{color:#5f6380;cursor:default;display:flex;align-items:center;gap:4px}.chatv .chan a.chan-tranc svg{width:13px;height:13px;margin-left:auto;fill:none;stroke:#6b6e86;stroke-width:2}
 .chat-tranc{flex:none;display:flex;align-items:center;gap:14px;margin:0 26px 20px;padding:14px 18px;border:1px dashed var(--line2);border-radius:14px;background:#12131c;color:#b9bccd}.chat-tranc>svg{width:22px;height:22px;flex:none;fill:none;stroke:var(--acc2);stroke-width:2}.chat-tranc b{display:block;color:#fff;font-size:15px;margin-bottom:2px}.chat-tranc span{font-size:13px}.chat-tranc .btn{margin-left:auto;flex:none}
+/* telas baixas (notebook 1440x810): o desfile do time não cabe e ficaria cortado */
+@media (max-height:900px){.desfile{display:none}}

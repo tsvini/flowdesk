@@ -20,7 +20,10 @@ const chaveDados = () => 'fd:dados:' + sessao();
 let D = null;
 // versões novas do site completam o que faltar nos dados antigos, sem apagar nada do aluno
 const migra = (d) => { if (!d) return d; const base = semente(); for (const k of Object.keys(base)) if (d[k] === undefined) d[k] = base[k]; for (const k of Object.keys(base.chat || {})) if (d.chat && !d.chat[k]) d.chat[k] = base.chat[k]; return d; };
-const dados = () => { if (!D) { D = migra(LS.get(chaveDados(), null)); if (D) { andaSprint(D); garanteDesafio(D); garanteD2(D); } } return D; };
+const garanteDia2 = (d) => { const f = (d.cards || []).find((c) => c.id === 'FD-101'); if (!f || f.coluna !== 'dev') return;
+  const dia2 = d.dia2 || (d.conquistas || []).some((c) => c !== 'ep00') || ((d.planos || {})['FD-101'] || []).length > 0;
+  if (!dia2) return; f.coluna = 'qa'; const tp = (d.chat || {})['time-produto']; if (tp && !tp.some((m) => /pronto pra QA/.test(m.tx))) tp.push({ de: 'gabriela', tx: 'Bom dia! O FD-101 tá pronto pra QA, pode testar quando quiser 🚀', quando: agora() }); };
+const dados = () => { if (!D) { D = migra(LS.get(chaveDados(), null)); if (D) { garanteDia2(D); andaSprint(D); garanteDesafio(D); garanteD2(D); } } return D; };
 const salvar = () => LS.set(chaveDados(), D);
 // sem ninguém logado (tela de login), a versão é a mais nova que este navegador já viu
 const _conq = (LS.get(chaveDados(), null) || {}).conquistas || Object.keys(localStorage).filter((k) => k.startsWith('fd:dados:')).flatMap((k) => (LS.get(k, null) || {}).conquistas || []);
@@ -107,7 +110,7 @@ const CLIENTES = [
   { nome: 'Studio Fit', contato: 'Renan Alves', plano: 'Básico' },
 ];
 function semente() {
-  const dia = (d, h) => { const x = new Date(); x.setDate(x.getDate() - d); x.setHours(h, 12, 0, 0); return x.toISOString(); };
+  const dia = (d, h, m = 12) => { const x = new Date(); x.setDate(x.getDate() - d); x.setHours(h, m, 0, 0); return x.toISOString(); };
   const ch = (id, titulo, descricao, cliente, status, d, h) => ({ id, titulo, descricao, cliente, status, criadoEm: dia(d, h), criadoPor: 'Cliente', anexo: null, historico: [{ quando: dia(d, h), tx: 'Chamado criado com status Aberto' }] });
   return {
     versaoDados: 1,
@@ -124,7 +127,7 @@ function semente() {
     ],
     cards: [
       { id: 'FD-097', titulo: 'Tela de login', coluna: 'concluido', resp: 'gabriela', tipo: 'story', prioridade: 'Alta', ...FD097 },
-      { id: 'FD-101', titulo: 'Criar chamado', coluna: 'qa', resp: 'voce', tipo: 'story', prioridade: 'Normal', descricao: 'Clientes criam chamados sem informação, e depois ninguém sabe o que fazer com eles. Melhorar a tela de criar chamado.',
+      { id: 'FD-101', titulo: 'Criar chamado', coluna: 'dev', resp: 'voce', tipo: 'story', prioridade: 'Normal', descricao: 'Clientes criam chamados sem informação, e depois ninguém sabe o que fazer com eles. Melhorar a tela de criar chamado.',
         criterios: ['Título é obrigatório', 'Descrição é obrigatória', 'Título aceita até 100 caracteres', 'Anexo é opcional: PDF, PNG ou JPG, até 5 MB', 'Depois de criar: mensagem de sucesso e ida pra tela do chamado', 'Chamado novo começa com status Aberto'], ok: [], comentarios: [] },
       { id: 'FD-102', titulo: 'Anexar arquivo ao chamado', coluna: 'dev', resp: 'gabriela', tipo: 'story', prioridade: 'Normal', descricao: 'Permitir anexar mais de um arquivo depois que o chamado já foi criado.', criterios: [], ok: [], comentarios: [] },
       { id: 'FD-104', titulo: 'Filtrar chamados por cliente', coluna: 'afazer', resp: 'rafael', tipo: 'story', prioridade: 'Baixa', descricao: 'Na lista de chamados, filtrar pelo nome do cliente.', criterios: [], ok: [], comentarios: [] },
@@ -133,11 +136,10 @@ function semente() {
     planos: { 'FD-101': [] },
     chat: {
       'time-produto': [
-        { de: 'beatriz', tx: 'Bem-vindo ao time! Eu cuido das prioridades e das releases 👋', quando: dia(1, 9) },
-        { de: 'rafael', tx: 'E aí! Os cards que você vai testar saem de mim.', quando: dia(1, 9) },
-        { de: 'gabriela', tx: 'Oi! Se achar bug, me chama primeiro 😅', quando: dia(1, 9) },
-        { de: 'lucas', tx: 'Seja bem-vindo. Daily às 9h15.', quando: dia(1, 9) },
-        { de: 'gabriela', tx: 'Bom dia! O FD-101 já está em homologação, pode testar quando quiser 🚀', quando: dia(0, 9) },
+        { de: 'beatriz', tx: 'Bem-vindo ao time! Eu cuido das prioridades e das releases 👋', quando: dia(1, 9, 5) },
+        { de: 'rafael', tx: 'E aí! Os cards que você vai testar saem de mim.', quando: dia(1, 9, 5) },
+        { de: 'gabriela', tx: 'Oi! Se achar bug, me chama primeiro 😅', quando: dia(1, 9, 5) },
+        { de: 'lucas', tx: 'Seja bem-vindo. Daily às 9h15.', quando: dia(1, 9, 5) },
       ],
       geral: [{ de: 'beatriz', tx: 'Lembrete: review da sprint na sexta às 16h.', quando: dia(1, 11) }],
       releases: [{ de: 'lucas', tx: 'Release da Sprint 13 publicada. Próxima: sexta, depois da review.', quando: dia(4, 18) }],
@@ -307,7 +309,8 @@ const FD097 = { descricao: 'Pra quem: os atendentes das empresas clientes. O qu�
   ok: [0, 1, 2, 3, 4], comentarios: [] };
 const SAVES = [
   { id: 'inicio', nome: 'Começo do curso', quando: 'do EP00 ao EP03', monta: () => semente() },
-  { id: 'ep04p', nome: 'Início do EP04', quando: 'Montar o plano de testes', monta: () => { const d = semente(); d.viuFD101 = true; d.faltaOk = true; d.conquistas = [...new Set([...(d.conquistas || []), 'ep00'])]; return d; } },
+  { id: 'ep04p', nome: 'Início do EP04', quando: 'Montar o plano de testes', monta: () => { const d = semente(); d.viuFD101 = true; d.faltaOk = true; d.conquistas = [...new Set([...(d.conquistas || []), 'ep00'])];
+SAVES.forEach((sv) => { if (sv.id === 'inicio') return; const m = sv.monta; sv.monta = () => { const d = m(); d.dia2 = true; garanteDia2(d); return d; }; }); return d; } },
   { id: 'ep04', nome: 'Início do EP05', quando: 'Cenários em Gherkin', monta: () => { const d = semente(); d.planos['FD-101'] = CENARIOS_EP03.map((c) => ({ ...c })); d.conquistas = ['ep03']; return d; } },
   { id: 'ep06', nome: 'Início do EP06', quando: 'Prática do Gherkin', monta: () => { const d = semente(); d.planos['FD-101'] = CENARIOS_EP03.map((c) => ({ ...c })); d.conquistas = ['ep03']; return d; } },
   { id: 'ep07', nome: 'Início do EP07', quando: 'Primeiro bug', monta: () => { const d = semente(); d.planos['FD-101'] = CENARIOS_EP03.map((c) => ({ ...c })); d.gherkin = { 'FD-101': GK_EP06 }; d.conquistas = ['ep03', 'ep06']; return d; } },
@@ -1270,6 +1273,8 @@ PAGINAS.card = () => {
   const temPlano = !!d.planos[c.id];
   const abas = [['detalhes', 'Detalhes'], ...(temPlano ? [['plano', 'Plano de testes'], ['gherkin', 'Gherkin']] : []), ['comentarios', 'Comentários']];
   let aba = abas.some(([k]) => k === qs.get('aba')) ? qs.get('aba') : 'detalhes';
+  const viraDia2 = (k) => { if (c.id === 'FD-101' && k === 'plano' && !d.dia2) { d.dia2 = true; garanteDia2(d); salvar(); } };  // abrir o plano (EP04) já é o dia 2
+  viraDia2(aba);
   const tot = c.criterios.length;
   casca(c.id === 'FD-101' ? 'card:' + aba : 'quadro', `<div class="topo"><div><div class="crumb"><a href="quadro.html">Quadro</a> / Sprint ${VERSAO}</div>
       <h2 data-test="titulo-pagina">${etiqueta(c)} <span style="color:var(--acc2)">${c.id}</span> · <span data-test="card-titulo" style="color:var(--txt)">${esc(c.titulo)}</span></h2></div></div>
@@ -1316,7 +1321,7 @@ PAGINAS.card = () => {
     return `<div class="sec" id="sCrit"><div class="k">Critérios de aceite <span class="k2">o plano de testes valida cada um</span></div>${es.map((e, i) => `<div class="crit c-${ST_CRIT[e.st][1]}" data-test="criterio-linha"><span class="ci">${e.st === 'ok' ? '✓' : e.st === 'falhou' ? '✕' : i + 1}</span><div class="ct"><div>${esc(e.t)}</div><div class="cc">${e.cen.length ? e.cen.map((j2) => `<button type="button" class="chipc" data-cen="${j2}">Cenário ${j2 + 1}</button>`).join('') : '<span class="semc">Nenhum cenário cobre essa regra ainda</span>'}${(e.bugs || []).map((b) => `<a class="chipb" href="card.html?id=${b}">${ico('bug')}${b}</a>`).join('')}</div></div><span class="cst" data-test="criterio-status">${ST_CRIT[e.st][0]}</span></div>`).join('')}</div>`;
   };
   const mostra = (k) => {
-    aba = k; $$('.abas button').forEach((b) => b.classList.toggle('on', b.dataset.aba === k));
+    aba = k; viraDia2(k); $$('.abas button').forEach((b) => b.classList.toggle('on', b.dataset.aba === k));
     if (c.id === 'FD-101') $$('[data-sub]').forEach((a) => a.classList.toggle('on', a.dataset.sub === k));
     history.replaceState(null, '', `card.html?id=${c.id}${k === 'detalhes' ? '' : '&aba=' + k}`);
     const A = $('#abaConteudo');
