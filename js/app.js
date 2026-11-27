@@ -683,7 +683,7 @@ function trilha(d = dados()) {
   const ok = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>';
   return `<div class="trilha" data-test="carreira"><span class="nv on">${ok}Estagiário</span><span class="tb"><i style="width:${a * 100}%"></i></span><span class="nv ${jr ? 'on' : ''}">${jr ? ok : ''}Júnior</span><span class="tb"><i style="width:${Math.max(b, 0) * 100}%"></i></span><span class="nv ${pl ? 'on' : 'fut'}">${pl ? ok : ''}Pleno</span></div>`;
 }
-const chatLiberado = (d = dados()) => (d.conquistas || []).includes('ep03');
+const chatLiberado = () => true;  // FlowChat liberado desde o primeiro acesso (o time já manda boas-vindas no EP00)
 
 // ---------- layout ----------
 const avatar = (p) => p === 'voce' ? '<span class="vc">VC</span>' : `<img class="av" src="img/av_${p}.png" alt="">`;
