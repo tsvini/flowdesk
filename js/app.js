@@ -243,10 +243,13 @@ const CENARIOS_EP03 = [
   ['Anexo em formato .exe', 'N', '1. Abrir a tela Novo chamado\n2. Preencher título e descrição\n3. Anexar programa.exe', 'Recusa o arquivo: formato não aceito', [3]],
   ['Título só com espaços em branco', 'N', '1. Abrir a tela Novo chamado\n2. Digitar só espaços no título\n3. Preencher a descrição\n4. Clicar em Criar chamado', 'Nenhuma regra diz o que acontece', []],
 ].map(([nome, tipo, passos, esperado, regras]) => ({ nome, tipo, passos, esperado, regras, exec: 'nao' }));
+// EP07: o Rafael respondeu que título só com espaços é o mesmo que vazio → a partir do EP08 o esperado do cenário 9 já vem preenchido
+const ESPERADO_CEN9 = 'Aparece "Título é obrigatório" e o chamado não é criado';
 const evNome = (i) => `cenario-${String(i + 1).padStart(2, '0')}.png`;
 function depoisDoEp08() {
   const d = semente();
   d.planos['FD-101'] = CENARIOS_EP03.map((c, i) => ({ ...c, exec: i === 5 || i === 8 ? 'falhou' : 'passou', evid: evNome(i), ...(i === 5 || i === 8 ? { jaFalhou: true } : {}) }));
+  d.planos['FD-101'][8].esperado = ESPERADO_CEN9;
   d.planos['FD-101'][8].bug = 'BUG-01'; d.planos['FD-101'][5].bug = 'BUG-02';
   d.gherkin = { 'FD-101': GK_EP06 };
   const b = (id, titulo, cenario, passos, esperado, obtido, evidencia) => ({ id, titulo, coluna: 'afazer', resp: 'gabriela', tipo: 'bug', prioridade: 'Normal', relacionado: 'FD-101', cenario, passos, esperado, obtido, evidencia, criterios: [], ok: [], comentarios: [], criadoEm: agora() });
@@ -314,7 +317,7 @@ SAVES.forEach((sv) => { if (sv.id === 'inicio') return; const m = sv.monta; sv.m
   { id: 'ep04', nome: 'Início do EP05', quando: 'Cenários em Gherkin', monta: () => { const d = semente(); d.planos['FD-101'] = CENARIOS_EP03.map((c) => ({ ...c })); d.conquistas = ['ep03']; return d; } },
   { id: 'ep06', nome: 'Início do EP06', quando: 'Prática do Gherkin', monta: () => { const d = semente(); d.planos['FD-101'] = CENARIOS_EP03.map((c) => ({ ...c })); d.conquistas = ['ep03']; return d; } },
   { id: 'ep07', nome: 'Início do EP07', quando: 'Primeiro bug', monta: () => { const d = semente(); d.planos['FD-101'] = CENARIOS_EP03.map((c) => ({ ...c })); d.gherkin = { 'FD-101': GK_EP06 }; d.conquistas = ['ep03', 'ep06']; return d; } },
-  { id: 'ep08', nome: 'Início do EP08', quando: 'Executar o plano', monta: () => { const d = semente(); d.planos['FD-101'] = CENARIOS_EP03.map((c) => ({ ...c })); d.gherkin = { 'FD-101': GK_EP06 }; d.conquistas = ['ep03', 'ep06']; return d; } },
+  { id: 'ep08', nome: 'Início do EP08', quando: 'Executar o plano', monta: () => { const d = semente(); d.planos['FD-101'] = CENARIOS_EP03.map((c) => ({ ...c })); d.planos['FD-101'][8].esperado = ESPERADO_CEN9; d.gherkin = { 'FD-101': GK_EP06 }; d.conquistas = ['ep03', 'ep06']; return d; } },
   { id: 'ep10', nome: 'Início do EP10', quando: 'Retestar os bugs', monta: depoisDoEp08 },
   { id: 'ep12', nome: 'Início do EP12', quando: 'Rodada de regressão', monta: depoisDoEp10 },
   { id: 'ep14', nome: 'Início do EP14', quando: 'Sprint 16', monta: depoisDoEp12 },
@@ -663,11 +666,13 @@ function conquista(m) {
   document.body.appendChild(o); $('[data-test=fechar-conquista]', o).onclick = () => { o.remove(); delete dados().conqPendente; salvar(); const prox = FILA_CONQ.shift(); if (prox) return setTimeout(() => conquista(prox), 200); setTimeout(refrescaCarreira, 250); setTimeout(() => pedeAvaliacao(m.id), 1600); };
   const nv = $('[data-test=nivel]'); if (nv) nv.textContent = m.nivel;
 }
+// missão que ainda não começou é de uma aula que vem pela frente: "PRÓXIMA MISSÃO · EP04" (não parece número de episódio errado)
+const rotuloMissao = (m, feitos) => feitos > 0 ? 'MISSÃO DO ' + m.aula.toUpperCase() : 'PRÓXIMA MISSÃO · ' + m.aula.toUpperCase();
 function cardMissao() {
   const m = missaoAtual();
   if (!m) return `<a class="missao-side feita" id="missaoSide" href="missoes.html" data-test="missao-atual"><div class="k">PRÓXIMO PASSO</div><div class="t">${textoOnde(dados())}</div><div class="p">A missão aparece quando a aula pedir</div></a>`;
   const pr = progresso(m), n = pr.filter(Boolean).length;
-  return `<a class="missao-side" id="missaoSide" href="missoes.html" data-test="missao-atual"><div class="k">${m.id === 'd1' ? 'DESAFIO DE EFETIVAÇÃO' : 'MISSÃO DO ' + m.aula.toUpperCase()}</div><div class="t">${m.titulo}</div><div class="bar"><i style="width:${n / pr.length * 100}%"></i></div><div class="p" data-test="missao-progresso">${n}/${pr.length}</div><div class="pop" data-test="missao-lista"><div class="k">SUA MISSÃO</div>${m.itens.map(([t], i) => `<div class="pit ${pr[i] ? 'on' : ''}"><b>${pr[i] ? '✓' : i + 1}</b>${t}</div>`).join('')}</div></a>`;
+  return `<a class="missao-side" id="missaoSide" href="missoes.html" data-test="missao-atual"><div class="k">${m.id === 'd1' ? 'DESAFIO DE EFETIVAÇÃO' : rotuloMissao(m, n)}</div><div class="t">${m.titulo}</div><div class="bar"><i style="width:${n / pr.length * 100}%"></i></div><div class="p" data-test="missao-progresso">${n}/${pr.length}</div><div class="pop" data-test="missao-lista"><div class="k">SUA MISSÃO</div>${m.itens.map(([t], i) => `<div class="pit ${pr[i] ? 'on' : ''}"><b>${pr[i] ? '✓' : i + 1}</b>${t}</div>`).join('')}</div></a>`;
 }
 
 // ---------- carreira (XP vem das missões) ----------
@@ -886,7 +891,7 @@ PAGINAS.dashboard = () => {
   const falta = (jr ? XP_PLENO : XP_JUNIOR) - xp;
   const msg = m ? `Faltam ${falta} XP pra ${jr ? 'pleno' : 'júnior'}. ${DICA_MISSAO[m.id] || ''}` : (ondeEsta(d).aberta ? `${textoOnde(d)}. A missão aparece quando a aula pedir.` : `Mandou bem. Próximo passo: assistir o ${proximaAula(d)}.`);
   const okSvg = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>';
-  const hero = m ? `<a class="hero" href="${m.link}" data-test="missao-hero"><div class="hk"><span>${m.id === 'd1' ? 'DESAFIO DE EFETIVAÇÃO' : 'MISSÃO DO ' + m.aula}</span>${m.semXp ? '<i>primeira conquista</i>' : `<i>+${m.itens.length * XP_ITEM + XP_CONQ} XP</i>`}</div>${(() => { const o = ondeEsta(d); return o.aberta && o.n > numAula(m.aula) ? `<div class="hero-atras" data-test="missao-atras">Você já está no ${nomeAula(o.n)}. Essa missão do ${m.id === 'd1' ? 'Desafio 1' : m.aula} ficou pra trás.</div>` : ''; })()}<div class="ht">${m.titulo}</div>
+  const hero = m ? `<a class="hero" href="${m.link}" data-test="missao-hero"><div class="hk"><span>${m.id === 'd1' ? 'DESAFIO DE EFETIVAÇÃO' : rotuloMissao(m, progresso(m).filter(Boolean).length)}</span>${m.semXp ? '<i>primeira conquista</i>' : `<i>+${m.itens.length * XP_ITEM + XP_CONQ} XP</i>`}</div>${(() => { const o = ondeEsta(d); return o.aberta && o.n > numAula(m.aula) ? `<div class="hero-atras" data-test="missao-atras">Você já está no ${nomeAula(o.n)}. Essa missão do ${m.id === 'd1' ? 'Desafio 1' : m.aula} ficou pra trás.</div>` : ''; })()}<div class="ht">${m.titulo}</div>
       <div class="hl">${m.itens.map(([t], i) => `<div class="pit ${pr[i] ? 'on' : ''}"><b>${pr[i] ? okSvg : i + 1}</b>${t}</div>`).join('')}</div><div class="hb"><span class="btn ouro">Continuar a missão ${ico('seta')}</span><span class="hn">${pr.filter(Boolean).length} de ${pr.length} feitos</span></div>
       <svg class="hero-alvo" viewBox="0 0 220 220" aria-hidden="true"><circle cx="110" cy="110" r="90" stroke-dasharray="4 10"/><circle cx="110" cy="110" r="55"/><circle cx="110" cy="110" r="18" class="f"/></svg></a>`
     : (() => { const rel = [...(d.chat.releases || [])].pop(), o = ondeEsta(d), prox = MISSOES.find((x) => numAula(x.aula) > o.n);
