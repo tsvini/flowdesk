@@ -669,7 +669,9 @@ function conquista(m) {
   const nv = $('[data-test=nivel]'); if (nv) nv.textContent = m.nivel;
 }
 // missão que ainda não começou é de uma aula que vem pela frente: "PRÓXIMA MISSÃO · EP04" (não parece número de episódio errado)
-const rotuloMissao = (m, feitos) => feitos > 0 ? 'MISSÃO DO ' + m.aula.toUpperCase() : 'PRÓXIMA MISSÃO · ' + m.aula.toUpperCase();
+// missão de uma aula depois do save carregado (ex.: save do EP07, missão do EP08) ainda é a próxima
+const missaoFutura = (m) => { const ns = +(((dados().saveDe || '').match(/^ep(\d+)/) || [])[1] || 0), nm = +((String(m.aula).match(/(\d+)/) || [])[1] || 0); return ns > 0 && nm > ns; };
+const rotuloMissao = (m, feitos) => feitos > 0 && !missaoFutura(m) ? 'MISSÃO DO ' + m.aula.toUpperCase() : 'PRÓXIMA MISSÃO · ' + m.aula.toUpperCase();
 function cardMissao() {
   const m = missaoAtual();
   if (!m) return `<a class="missao-side feita" id="missaoSide" href="missoes.html" data-test="missao-atual"><div class="k">PRÓXIMO PASSO</div><div class="t">${textoOnde(dados())}</div><div class="p">A missão aparece quando a aula pedir</div></a>`;
@@ -1851,7 +1853,7 @@ PAGINAS.configuracoes = () => {
   if (bk && bk.dados) { const el = document.createElement('div'); el.className = 'aula-volta'; el.innerHTML = `<b>Você pulou de aula.</b> Quer voltar pro progresso que você tinha no ${esc(bk.aula)}? <button class="btn peq sec" data-test="desfazer-pulo">Voltar pro meu progresso</button>`; $('.sv-barra').after(el);
     el.querySelector('button').onclick = () => { LS.set(chaveDados(), bk.dados); LS.del('fd:backup:' + sessao()); recado('Progresso de antes do pulo de volta'); location.href = 'dashboard.html'; }; }
   $('#saveNao').onclick = () => { $('#confSave').hidden = true; $('#carregaSave').hidden = false; };
-  $('#saveSim').onclick = () => { const sv = SAVES.find((x) => x.id === $('#cfSave').value); LS.set(chaveDados(), sv.monta()); recado(`Save carregado: ${sv.nome}`); location.href = 'dashboard.html'; };
+  $('#saveSim').onclick = () => { const sv = SAVES.find((x) => x.id === $('#cfSave').value); LS.set(chaveDados(), { ...sv.monta(), saveDe: sv.id }); recado(`Save carregado: ${sv.nome}`); location.href = 'dashboard.html'; };
   $('#exporta').onclick = () => {
     const arq = { app: 'flowdesk', formato: 1, nome: c.nome, exportadoEm: agora(), dados: dados() };
     const url = URL.createObjectURL(new Blob([JSON.stringify(arq, null, 1)], { type: 'application/json' }));
@@ -2537,7 +2539,7 @@ PAGINAS.aula = () => {
 function saveDaUrl() {
   const sv = SAVES.find((x) => x.id === qs.get('save')); if (!sv) return false;
   if (!sessao() || !contas()[sessao()]) { const cs = contas(), e = 'aluno@teste.com'; if (!cs[e]) { cs[e] = { nome: 'Aluno Teste', senha: '123456', criadaEm: agora() }; LS.set('fd:contas', cs); } LS.set('fd:sessao', e); }
-  D = null; LS.set(chaveDados(), sv.monta());
+  D = null; LS.set(chaveDados(), { ...sv.monta(), saveDe: sv.id });
   const u = new URL(location.href); u.searchParams.delete('save'); if (document.body.dataset.page === 'login') u.pathname = u.pathname.replace(/[^/]*$/, 'dashboard.html');
   location.replace(u.toString()); return true;
 }
