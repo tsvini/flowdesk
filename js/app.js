@@ -67,6 +67,8 @@ const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '
 const agora = () => new Date().toISOString();
 const dataBR = (iso) => { const d = new Date(iso); return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); };
 const hora = (iso) => new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+// mensagem de outro dia mostra a data junto (senão 10:12 de ontem aparece acima de 09:24 de hoje)
+const horaChat = (iso) => { const d = new Date(iso); return d.toDateString() === new Date().toDateString() ? hora(iso) : d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) + ' · ' + hora(iso); };
 const tamanho = (b) => b >= 1048576 ? (b / 1048576).toFixed(2).replace('.', ',') + ' MB' : Math.max(1, Math.round(b / 1024)) + ' KB';
 const extensao = (n) => (n.split('.').pop() || '').toLowerCase();
 function toast(msg, mal = false) {
@@ -1243,7 +1245,7 @@ function retesteHtml(c) {
     <form id="fRt" class="rt-f" hidden novalidate><div class="linha2"><div class="campo"><label for="rtV">Versão em que você testou</label><select class="in" id="rtV" data-test="reteste-versao">${[14, 15, 16].filter((v) => v <= VERSAO).map((v) => `<option value="${v}" ${v === VERSAO ? 'selected' : ''}>Sprint ${v}</option>`).join('')}</select></div>
       <div class="campo"><label>Resultado</label><div class="seg" id="rtSeg"><label data-test="reteste-passou"><input type="radio" name="rtR" value="passou"><span>Passou</span></label><label data-test="reteste-falhou"><input type="radio" name="rtR" value="falhou"><span>Falhou</span></label></div></div></div>
       <div class="campo"><label for="rtE">Evidência <i>*</i> <small>(o print do reteste)</small></label><label class="arquivo" for="rtE" id="rtBox"><input type="file" id="rtE" data-test="reteste-evidencia" multiple><span class="btn sec peq">Escolher arquivo</span><span class="nome" id="rtN">Nenhum arquivo escolhido</span></label></div>
-      <div class="campo"><label for="rtC">Comentário <small>(opcional)</small></label><input class="in" id="rtC" data-test="reteste-comentario" placeholder="Ex.: testei também com 1 espaço e com espaço antes do texto"></div>
+      <div class="campo"><label for="rtC">Comentário <small>(opcional)</small></label><input class="in" id="rtC" data-test="reteste-comentario" placeholder="Ex.: testei também uma variação além dos passos do report"></div>
       <div class="fbtns"><button type="button" class="btn sec" id="rtX">Cancelar</button><button class="btn" data-test="salvar-reteste">Registrar reteste</button></div></form>`;
   else if (c.coluna === 'concluido') corpo = '<p class="dica" data-test="bug-fechado">Bug fechado depois do reteste.</p>';
   else corpo = `<p class="dica">${c.reaberto ? 'Reaberto: voltou pra Gabriela com o print do reteste.' : 'Esperando a correção da Gabriela.'}</p>`;
@@ -1630,7 +1632,7 @@ function respostaDoTime(tx, canal) {
   const R = (de, ...op) => ({ de, tx: op[Math.floor(Math.random() * op.length)] });
   const reg = d.cards.find((c) => c.tipo === 'bug' && c.regressao && c.coluna !== 'concluido');
   // EP10: perdeu a daily (o sinal caiu) e pergunta o que foi combinado
-  if (VERSAO === 15 && d.cards.some((c) => c.tipo === 'bug' && c.coluna === 'qa') && /daily|combinad|perdi|caiu|sinal/.test(t)) return { de: 'gabriela', tx: 'Corrigi os dois bugs na Sprint 15. Preciso do seu reteste pra liberar a versão 🙏' };
+  if (VERSAO === 15 && d.cards.some((c) => c.tipo === 'bug' && c.coluna === 'qa') && /daily|combinad|perdi|caiu|sinal/.test(t)) return { de: 'gabriela', tx: 'Ficou combinado assim: corrigi os dois bugs na Sprint 15, e preciso do seu reteste pra liberar a versão 🙏' };
   if (VERSAO === 15 && reg && /regress|release|segur|recomend|subir|quebr/.test(t)) return R('beatriz', `Segura a release então. Gabi, prioridade no ${reg.id}.`, `Obrigada por avisar antes. Release segurada até o ${reg.id} sair.`);
   if (/bug|erro|falh|quebr/.test(t)) return bug ? R('gabriela', `Vi o ${bug.id}. Vou olhar ainda hoje e te aviso 👀`, `Já tô olhando o ${bug.id}. Se tiver print, joga no card!`) : R('gabriela', 'Opa! Abre o card em "Reportar bug" com o passo a passo que eu olho 👀', 'Me manda os passos pra reproduzir? Aí eu consigo ver aqui.');
   if (/regra|crit[eé]rio|card|fd-?10\d|limite|anexo|t[ií]tulo/.test(t)) return R('rafael', 'Tá tudo nos critérios do FD-101. Se faltar alguma regra, me chama que a gente conversa 👍', 'Boa! Se tiver dúvida de regra, pode perguntar. Eu prefiro responder agora do que descobrir depois.');
@@ -1661,7 +1663,7 @@ PAGINAS.chat = () => {
   const d = dados();
   if (!chatLiberado(d)) {
     // antes do EP04: só dá pra ler as boas-vindas do time em #time-produto; perguntar libera depois da missão do EP04
-    const msgV = (m) => `<div class="msg" data-test="mensagem"><img src="img/av_${m.de}.png" alt=""><div><div class="who">${PESSOAS[m.de].nome}<i>${PESSOAS[m.de].papel}</i><small>${hora(m.quando)}</small></div><div class="tx">${esc(m.tx)}</div></div></div>`;
+    const msgV = (m) => `<div class="msg" data-test="mensagem"><img src="img/av_${m.de}.png" alt=""><div><div class="who">${PESSOAS[m.de].nome}<i>${PESSOAS[m.de].papel}</i><small>${horaChat(m.quando)}</small></div><div class="tx">${esc(m.tx)}</div></div></div>`;
     return casca('chat', `<div class="chatv"><div class="chan"><div class="t">Canais</div>${Object.keys(d.chat).map((k) => k === 'time-produto' ? `<a href="chat.html" class="on" data-test="canal-${k}"><span>#</span> ${k}</a>` : `<a class="chan-tranc" data-test="canal-${k}" title="Libera depois da missão do EP04"><span>#</span> ${k} ${ico('cadeado')}</a>`).join('')}</div>
       <div class="msgs"><div class="chead"><b># time-produto</b><span class="avs">${TIME.map(([p]) => `<img src="img/av_${p}.png" alt="${PESSOAS[p].nome}" title="${PESSOAS[p].nome}">`).join('')}</span><span class="mem">6 membros</span></div><div class="lista" id="lista">${(d.chat['time-produto'] || []).map(msgV).join('')}</div>
       <div class="chat-tranc" data-test="chat-bloqueado">${ico('cadeado')}<div><b>Perguntar pro time libera depois da missão do EP04</b><span>Primeiro você monta o plano de testes do FD-101. Antes de perguntar, lê o card: a pergunta fica muito melhor.</span></div><a class="btn sec" href="card.html?id=FD-101&aba=plano">Ir pro plano de testes</a></div></div>
@@ -1670,7 +1672,7 @@ PAGINAS.chat = () => {
 
   const canal = d.chat[qs.get('canal')] ? qs.get('canal') : 'time-produto', l = d.chat[canal];
   d.perguntadas = d.perguntadas || [];
-  const msgHtml = (m) => `<div class="msg ${m.de === 'voce' ? 'eu' : ''}" data-test="mensagem">${m.de === 'voce' ? '<span class="vc">VC</span>' : `<img src="img/av_${m.de}.png" alt="">`}<div><div class="who">${PESSOAS[m.de].nome}<i>${PESSOAS[m.de].papel}</i><small>${hora(m.quando)}</small></div><div class="tx">${esc(m.tx)}</div></div></div>`;
+  const msgHtml = (m) => `<div class="msg ${m.de === 'voce' ? 'eu' : ''}" data-test="mensagem">${m.de === 'voce' ? '<span class="vc">VC</span>' : `<img src="img/av_${m.de}.png" alt="">`}<div><div class="who">${PESSOAS[m.de].nome}<i>${PESSOAS[m.de].papel}</i><small>${horaChat(m.quando)}</small></div><div class="tx">${esc(m.tx)}</div></div></div>`;
   const prontas = () => (PERGUNTAS[canal] || []).map((q, i) => d.perguntadas.includes(canal + i) ? '' : `<button type="button" class="pq" data-pq="${i}" data-test="pergunta-pronta"><img src="img/av_${q[0]}.png" alt="">${esc(q[1])}</button>`).join('');
   casca('chat', `<div class="chatv"><div class="chan">
       <div class="t">Canais</div>${Object.keys(d.chat).map((k) => `<a href="chat.html?canal=${k}" class="${k === canal ? 'on' : ''}" data-test="canal-${k}"><span>#</span> ${k}</a>`).join('')}</div>
