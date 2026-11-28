@@ -2447,9 +2447,9 @@ function garanteD2(d) {
   LS.set(chaveDados(), d);
 }
 const D2_PLANO = [['Enviar uma foto JPG pequena', 'smoke'], ['Foto de até 10 MB é aceita', 'regressivo'], ['PDF é recusado com mensagem', 'regressivo'], ['Enviar uma foto de 20 MB pela tela e ver a mensagem de erro', 'smoke'],
-  ['Remover uma foto antes de enviar', 'regressivo'], ['Chamado sem foto continua sendo criado', 'smoke'], ['A miniatura aparece na tela do chamado', 'regressivo'], ['Foto com acento no nome', 'manual']];
+  ['Remover uma foto antes de enviar', 'regressivo'], ['Chamado sem foto continua sendo criado', 'smoke'], ['A miniatura aparece na tela do chamado', 'regressivo'], ['Foto com acento no nome', 'regressivo']];
 const D2_PLANO_CERTO = { 1: 'inventado', 3: 'lugar' };  // o 10 MB não está no card; os 20 MB no smoke travam todo pedido de revisão
-const D2_ONDE = [['Enviar uma foto pequena', ['smoke']], ['A quarta foto é recusada', ['smoke']], ['A tela do chamado com 3 fotos abre em menos de 2 segundos', ['regressivo']],
+const D2_ONDE = [['Enviar uma foto pequena', ['smoke']], ['A quarta foto é recusada', ['regressivo']], ['A tela do chamado com 3 fotos abre em menos de 2 segundos', ['regressivo']],
   ['O robô de acessibilidade no novo chamado, na tela do celular', ['regressivo']], ['Tirar foto de verdade num celular de verdade', ['manual']], ['Enviar uma foto de 20 MB e ver a recusa', ['regressivo', 'manual']]];
 const D2_BUGS = [['api', /api|servidor|request|post\b|backend|porta de tr/i, /mb|tamanho|grande|limite|qualquer/i, 'O servidor aceita foto de qualquer tamanho'],
   ['nome', /leitor|sem nome|nome acess|aria|r[óo]tulo|label|acessibil|axe/i, /c[aâ]mera|foto|bot[ãa]o|celular/i, 'No celular, o botão de foto não tem nome'],
